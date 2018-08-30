@@ -11,10 +11,9 @@ contract TestDeployed {
 
     function () public payable {
         share[msg.sender] += msg.value;
-
     }
-
-    function send() public payable {
-        share[msg.sender] += msg.value;
-    }
+//
+//    function send() public payable {
+//        share[msg.sender] += msg.value;
+//    }
 }
