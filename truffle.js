@@ -17,7 +17,7 @@ const config = require('./tools/config.js')
 //const mnemonic = ''   //12 words mnemonic
 const AccountAPrivateKey = config.envConfig.DEV_CHAIN_ACCOUNT_A_PRI_KEY
 const AccountBPrivateKey = config.envConfig.DEV_CHAIN_ACCOUNT_B_PRI_KEY
-const privateKeys = [AccountAPrivateKey, AccountBPrivateKey]
+const privateKeys = [AccountBPrivateKey, AccountAPrivateKey]  //第一个账户为默认帐号
 const devChainHttpHost = config.envConfig.DEV_CHAIN_HTTP_HOST
 const devChainHttpNetId = config.envConfig.DEV_CHAIN_NET_ID
 
