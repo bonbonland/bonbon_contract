@@ -12,7 +12,37 @@
  *   },
  */
 
+const HDWalletProvider = require('truffle-hdwallet-provider-privkey')
+const config = require('./tools/config.js')
+//const mnemonic = ''   //12 words mnemonic
+const privateKey = config.envConfig.DEV_CHAIN_ACCOUNT_PRI_KEY
+const devChainHttpHost = config.envConfig.DEV_CHAIN_HTTP_HOST
+const devChainHttpNetId = config.envConfig.DEV_CHAIN_NET_ID
+
 module.exports = {
   // See <http://truffleframework.com/docs/advanced/configuration>
   // to customize your Truffle configuration!
+
+  solc: {
+    optimizer: {
+      enabled: true,
+      runs: 200
+    },
+  },
+
+  networks: {
+    local: {
+      host: 'localhost',
+      port: 8545,
+      gas: 10000000,
+      network_id: '*',   // Match any network id
+    },
+    dev: {
+      provider: () =>
+        //caution! first arg is array
+        new HDWalletProvider([privateKey], devChainHttpHost),
+      network_id: devChainHttpNetId,
+      gas: 5000000,
+    },
+  },
 };
