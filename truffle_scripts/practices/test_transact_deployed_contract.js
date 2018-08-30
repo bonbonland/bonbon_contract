@@ -20,9 +20,10 @@ module.exports = function(done) {
       value: web3.utils.toWei('0.01', 'ether'), //send eth
     })
       .then(function (res) {
-        console.log('transaction is finished, the tx_has is : ' + res.tx)
-        done()
-      })
-      .catch(err => done(err))
+      console.log('transaction is finished, the tx_has is : ' + res.tx)
+      done()
+    })
   })
+    .catch(err => done(err),
+)
 }
