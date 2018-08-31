@@ -11,7 +11,8 @@ let addressA = '0xF83c5c0be4c0803ECA56a4CBf02b07F6E6BbDa9c'
 let addressB = '0xA08d4485E50d28E60A41cb015203fDB3D1dE6C8C'
 
 let web3 = new Web3(devChainHttpHost)
-let accountA = web3.eth.accounts.privateKeyToAccount(accountAPriKey)
+//注意这里需要加上0x开头，不然转出来的地址不一样
+let accountA = web3.eth.accounts.privateKeyToAccount('0x' + accountAPriKey)
 
 let rawTransaction = {
   "from": addressA, //测试下来改了这个from地址无效，因为signTrans的是AccountA对象
@@ -23,7 +24,7 @@ let rawTransaction = {
 // web3.eth.getBalance(addressA)
 //   .then(res => console.log(res))
 
-console.log(accountA)   //TODO 为什么转出来的帐号地址变了
+console.log(accountA)
 
 accountA.signTransaction(rawTransaction)
   .then(signedTx => {
