@@ -15,24 +15,33 @@ let web3 = new Web3(devChainHttpHost)
 let accountA = web3.eth.accounts.privateKeyToAccount('0x' + accountAPriKey)
 
 let rawTransaction = {
-  "from": addressA, //测试下来改了这个from地址无效，因为signTrans的是AccountA对象
-  "to": addressB,
-  "value": web3.utils.toWei("0.001", "ether"),
-  "gas": 200000,
+  from: addressA, //测试下来改了这个from地址无效，因为signTrans的是AccountA对象
+  to: addressB,
+  value: web3.utils.toWei("0.001", "ether"),
+  gas: 200000,
 }
 
 // web3.eth.getBalance(addressA)
 //   .then(res => console.log(res))
 
-console.log(accountA)
+//console.log(accountA)
 
-accountA.signTransaction(rawTransaction)
-  .then(signedTx => {
-    web3.eth.sendSignedTransaction(signedTx.rawTransaction)
-      .then(receipt => console.log("Transaction receipt: ", receipt))
+// accountA.signTransaction(rawTransaction)
+//   .then(signedTx => {
+//     web3.eth.sendSignedTransaction(signedTx.rawTransaction)
+//       .then(receipt => console.log("Transaction receipt: ", receipt))
+//
+//   })
+//   .catch(err => console.error(err))
 
-  })
-  .catch(err => console.error(err))
+//改成async方法执行的模式，使用await使代码看起来更具可读性
+let sendTransaction = async function () {
+  let signedTx = await accountA.signTransaction(rawTransaction)
+  let receipt = await web3.eth.sendSignedTransaction(signedTx.rawTransaction)
+  console.log("Transaction receipt: ", receipt)
+}
+
+sendTransaction()
 
 
 //todo 调用合约存在的方法
