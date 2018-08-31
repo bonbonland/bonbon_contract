@@ -6,14 +6,14 @@ const Web3 = require('web3')
 const abi = require('./abi.js')
 const BN = require('bignumber.js')
 
-let devChainWxHost = config.envConfig.DEV_CHAIN_WX_HOST
+let devChainWsHost = config.envConfig.DEV_CHAIN_WS_HOST
 let ddzContractAddress = '0x46db52da1cf824c57ca666274dba9709f72446e6'
 
-let web3 = new Web3(new Web3.providers.WebsocketProvider(devChainWxHost))
+let web3 = new Web3(new Web3.providers.WebsocketProvider(devChainWsHost))
 
 web3.eth.net.isListening()   //pre 1.0版本使用web3.isConnected()来判断
   .then(function (res) {
-    console.log('wx server connected.')
+    console.log('websocket server connected.')
   })
   .catch(function (err) {
     console.log('[ERROR] web3 not connected.')
