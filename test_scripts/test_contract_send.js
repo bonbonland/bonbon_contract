@@ -45,10 +45,3 @@ let senTransaction = async function () {
 }
 
 senTransaction()
-
-
-
-
-//todo 调用合约存在的方法
-
-//todo 调用合约不存在的方法
