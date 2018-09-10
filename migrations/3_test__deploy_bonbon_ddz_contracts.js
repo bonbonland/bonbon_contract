@@ -17,8 +17,6 @@ module.exports = function (deployer, network , accounts) {
       //这里注意，必须要有promise被return，不然只有第一个contract被部署，且此脚本执行会卡住
       //可以直接return deployer.deploy(), 或者自定义promise。注意不要使用await
       return deployer.deploy(TestCaller, gameName, instance.address, options)
-      // return new Promise(function (resolve, reject) {
-      //   resolve()
-      // });
+      // return Promise.resolve()
     })
 };

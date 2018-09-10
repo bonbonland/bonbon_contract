@@ -26,9 +26,7 @@ module.exports = function (deployer, network , accounts) {
     return deployer.deploy(TestCallerNew, gameName, deployedBonBonStorage.address, options)
 
     //按照truffle的规范，一定要返会promise
-    // return new Promise(function (resolve, reject) {
-    //   resolve()
-    // })
+    // return Promise.resolve()
   }
 
   deployer.then(() => {

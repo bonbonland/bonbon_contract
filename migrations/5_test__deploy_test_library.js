@@ -13,9 +13,7 @@ module.exports = function (deployer, network , accounts) {
     console.log('test add func: 1 + 2 = ' + await deployedTestLibrary.add.call('1', '2'))
 
     //按照truffle的规范，一定要返会promise
-    return new Promise(function (resolve, reject) {
-      resolve()
-    })
+    return Promise.resolve()
   }
 
   deployer.then(() => {

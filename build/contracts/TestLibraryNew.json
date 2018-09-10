@@ -707,12 +707,12 @@
     "17": {
       "events": {},
       "links": {
-        "LibSafeMath": "0xd0a457bb172339ca5dc2bdd933ae9817a36214ed"
+        "LibSafeMath": "0xb87506131148f692936fdb08dfdab8cf4adb9e5d"
       },
-      "address": "0x7774e5913cba8223f967e7e27c876d6b6ffdb781",
-      "transactionHash": "0x1935f60e0d52c077fcd77b0183fe94304c3f82338ea72903ff84a5a16ead624e"
+      "address": "0x76f057fb94888256285947ff18194b925ca99f86",
+      "transactionHash": "0xc172544c685cc373703031a59bb984b0d83eeaac236b252861445697ff5a864a"
     }
   },
   "schemaVersion": "2.0.1",
-  "updatedAt": "2018-09-06T11:10:42.898Z"
+  "updatedAt": "2018-09-10T08:23:50.203Z"
 }
