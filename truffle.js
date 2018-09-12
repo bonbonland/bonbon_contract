@@ -44,7 +44,7 @@ module.exports = {
         //caution! first arg is array
         new HDWalletProvider(privateKeys, devChainHttpHost),
       network_id: devChainHttpNetId,
-      gas: 7000000,
+      gas: 8000000,
     },
   },
 };

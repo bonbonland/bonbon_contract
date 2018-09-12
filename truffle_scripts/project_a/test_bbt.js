@@ -66,8 +66,8 @@ module.exports = function(done) {
 
     await setTeamAccount()
     await printInfo()
-    //await testMine()
-    // await testRelease()
+    await testMine()
+    await testRelease()
     await testReleaseAndUnlock()
     await printInfo()
 
