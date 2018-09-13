@@ -8,7 +8,7 @@ contract BBT is BurnableToken, PausableToken, Whitelist {
     string public constant symbol = "BBT";
     string public constant name = "BonBon Token";
     uint8 public constant decimals = 18;
-    uint256 private overrideTotalSupply_ = 100 * 1e9 * 1e18;   //100亿
+    uint256 private overrideTotalSupply_ = 100 * 1e8 * 1e18;   //100亿
 
     uint256 public circulation;   //流通量
     address public teamWallet;    //团队持有bbt钱包

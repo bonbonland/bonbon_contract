@@ -12,6 +12,7 @@
  *   },
  */
 
+const web3 = require('web3')
 const HDWalletProvider = require('truffle-hdwallet-provider-privkey')
 const config = require('./tools/config.js')
 //const mnemonic = ''   //12 words mnemonic
@@ -46,5 +47,13 @@ module.exports = {
       network_id: devChainHttpNetId,
       gas: 8000000,
     },
+    ropsten: {
+      provider: function() {
+        return new HDWalletProvider(privateKeys, "https://ropsten.infura.io/")
+      },
+      network_id: '3',
+      gas: 7000000,
+      gasPrice: web3.utils.toWei('5', 'gwei'),
+    },
   },
-};
+}
