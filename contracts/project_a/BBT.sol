@@ -20,12 +20,12 @@ contract BBT is BurnableToken, PausableToken, Whitelist {
     event UnlockTeamBBT(address indexed teamWallet, uint256 amount, string source);
 
     modifier hasEnoughUnreleasedBBT(uint256 _amount) {
-        require(circulation.add(_amount) <= totalSupply_);
+        require(circulation.add(_amount) <= totalSupply_, "Unreleased BBT not enough.");
         _;
     }
 
     modifier hasTeamWallet() {
-        require(teamWallet != address(0));  //团队账号必须是已设置
+        require(teamWallet != address(0), "Team wallet not set.");  //团队账号必须是已设置
         _;
     }
 
