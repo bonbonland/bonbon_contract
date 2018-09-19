@@ -3,8 +3,9 @@ pragma solidity ^0.4.24;
 import 'openzeppelin-solidity/contracts/token/ERC20/BurnableToken.sol';
 import 'openzeppelin-solidity/contracts/token/ERC20/PausableToken.sol';
 import 'openzeppelin-solidity/contracts/access/Whitelist.sol';
+import './SnapshotToken.sol';
 
-contract BBT is BurnableToken, PausableToken, Whitelist {
+contract BBT is BurnableToken, PausableToken, SnapshotToken, Whitelist {
     string public constant symbol = "BBT";
     string public constant name = "BonBon Token";
     uint8 public constant decimals = 18;
@@ -13,6 +14,8 @@ contract BBT is BurnableToken, PausableToken, Whitelist {
     uint256 public circulation;
     address public teamWallet;
     uint256 public constant teamReservedRatio_ = 10;
+
+    mapping (uint256 => uint256) private snapshotCirculations;   //snapshotId => circulation
 
     event Mine(address indexed from, address indexed to, uint256 amount);
     event Release(address indexed from, address indexed to, uint256 amount);
@@ -37,6 +40,33 @@ contract BBT is BurnableToken, PausableToken, Whitelist {
 
     constructor() public {
         totalSupply_ = overrideTotalSupply_;
+    }
+
+    /**
+     * @dev make snapshot.
+     */
+    function snapshot()
+        onlyIfWhitelisted(msg.sender)
+        public
+        returns(uint256)
+    {
+        currSnapshotId += 1;
+        snapshotCirculations[currSnapshotId] = circulation;
+        emit Snapshot(currSnapshotId);
+        return currSnapshotId;
+    }
+
+    /**
+     * @dev get BBT circulation by snapshot id.
+     * @param _snapshotId snapshot id.
+     */
+    function circulationAt(uint256 _snapshotId)
+        public
+        view
+        returns(uint256)
+    {
+        require(_snapshotId > 0 && _snapshotId <= currSnapshotId, "invalid snapshot id.");
+        return snapshotCirculations[_snapshotId];
     }
 
     /**
@@ -139,6 +169,9 @@ contract BBT is BurnableToken, PausableToken, Whitelist {
         private
         returns(bool)
     {
+        super._updateSnapshot(msg.sender);
+        super._updateSnapshot(_to);
+
         balances[_to] = balances[_to].add(_amount);
         circulation = circulation.add(_amount);
     }
