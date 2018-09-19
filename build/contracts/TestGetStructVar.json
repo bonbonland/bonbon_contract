@@ -1,0 +1,841 @@
+{
+  "contractName": "TestGetStructVar",
+  "abi": [
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "testStruct",
+      "outputs": [
+        {
+          "name": "a",
+          "type": "uint256"
+        },
+        {
+          "name": "b",
+          "type": "string"
+        },
+        {
+          "name": "c",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    }
+  ],
+  "bytecode": "0x608060405234801561001057600080fd5b50607b6000556040805180820190915260048082527f7465737400000000000000000000000000000000000000000000000000000000602090920191825261005a9160019161006d565b506002805460ff19166001179055610108565b828054600181600116156101000203166002900490600052602060002090601f016020900481019282601f106100ae57805160ff19168380011785556100db565b828001600101855582156100db579182015b828111156100db5782518255916020019190600101906100c0565b506100e79291506100eb565b5090565b61010591905b808211156100e757600081556001016100f1565b90565b6101af806101176000396000f3006080604052600436106100405763ffffffff7c01000000000000000000000000000000000000000000000000000000006000350416639b0e317c8114610045575b600080fd5b34801561005157600080fd5b5061005a6100e4565b604051808481526020018060200183151515158152602001828103825284818151815260200191508051906020019080838360005b838110156100a757818101518382015260200161008f565b50505050905090810190601f1680156100d45780820380516001836020036101000a031916815260200191505b5094505050505060405180910390f35b6000805460018054604080516020600284861615610100026000190190941693909304601f810184900484028201840190925281815293949392918301828280156101705780601f1061014557610100808354040283529160200191610170565b820191906000526020600020905b81548152906001019060200180831161015357829003601f168201915b5050506002909301549192505060ff16835600a165627a7a72305820aa16dd6806e361115508448a9907e8dbd8eb6ec453631b35533bbdb797eda2c60029",
+  "deployedBytecode": "0x6080604052600436106100405763ffffffff7c01000000000000000000000000000000000000000000000000000000006000350416639b0e317c8114610045575b600080fd5b34801561005157600080fd5b5061005a6100e4565b604051808481526020018060200183151515158152602001828103825284818151815260200191508051906020019080838360005b838110156100a757818101518382015260200161008f565b50505050905090810190601f1680156100d45780820380516001836020036101000a031916815260200191505b5094505050505060405180910390f35b6000805460018054604080516020600284861615610100026000190190941693909304601f810184900484028201840190925281815293949392918301828280156101705780601f1061014557610100808354040283529160200191610170565b820191906000526020600020905b81548152906001019060200180831161015357829003601f168201915b5050506002909301549192505060ff16835600a165627a7a72305820aa16dd6806e361115508448a9907e8dbd8eb6ec453631b35533bbdb797eda2c60029",
+  "sourceMap": "26:269:2:-;;;177:116;8:9:-1;5:2;;;30:1;27;20:12;5:2;-1:-1;223:3:2;208:10;:18;236:21;;;;;;;;;;;;;;;;;;;;;;;:12;;:21;:::i;:::-;-1:-1:-1;267:12:2;:19;;-1:-1:-1;;267:19:2;282:4;267:19;;;26:269;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;26:269:2;;;-1:-1:-1;26:269:2;:::i;:::-;;;:::o;:::-;;;;;;;;;;;;;;;;;;;;:::o;:::-;;;;;;;",
+  "deployedSourceMap": "26:269:2:-;;;;;;;;;;;;;;;;;;;;;;;142:28;;8:9:-1;5:2;;;30:1;27;20:12;5:2;142:28:2;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;23:1:-1;8:100;33:3;30:1;27:10;8:100;;;90:11;;;84:18;71:11;;;64:39;52:2;45:10;8:100;;;12:14;142:28:2;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;142:28:2;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;-1:-1:-1;;;142:28:2;;;;;;;-1:-1:-1;;142:28:2;;;:::o",
+  "source": "pragma solidity ^0.4.24;\n\ncontract TestGetStructVar {\n    struct TestStruct {\n        uint256 a;\n        string b;\n        bool c;\n    }\n\n    TestStruct public testStruct;\n\n    constructor() public {\n        testStruct.a = 123;\n        testStruct.b = 'test';\n        testStruct.c = true;\n    }\n}",
+  "sourcePath": "/Volumes/Code/data/www/bonbon_contract/contracts/practices/TestGetStructVar.sol",
+  "ast": {
+    "absolutePath": "/Volumes/Code/data/www/bonbon_contract/contracts/practices/TestGetStructVar.sol",
+    "exportedSymbols": {
+      "TestGetStructVar": [
+        175
+      ]
+    },
+    "id": 176,
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 143,
+        "literals": [
+          "solidity",
+          "^",
+          "0.4",
+          ".24"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "0:24:2"
+      },
+      {
+        "baseContracts": [],
+        "contractDependencies": [],
+        "contractKind": "contract",
+        "documentation": null,
+        "fullyImplemented": true,
+        "id": 175,
+        "linearizedBaseContracts": [
+          175
+        ],
+        "name": "TestGetStructVar",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "canonicalName": "TestGetStructVar.TestStruct",
+            "id": 150,
+            "members": [
+              {
+                "constant": false,
+                "id": 145,
+                "name": "a",
+                "nodeType": "VariableDeclaration",
+                "scope": 150,
+                "src": "86:9:2",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 144,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "86:7:2",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "value": null,
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 147,
+                "name": "b",
+                "nodeType": "VariableDeclaration",
+                "scope": 150,
+                "src": "105:8:2",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_string_storage_ptr",
+                  "typeString": "string"
+                },
+                "typeName": {
+                  "id": 146,
+                  "name": "string",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "105:6:2",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_string_storage_ptr",
+                    "typeString": "string"
+                  }
+                },
+                "value": null,
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 149,
+                "name": "c",
+                "nodeType": "VariableDeclaration",
+                "scope": 150,
+                "src": "123:6:2",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_bool",
+                  "typeString": "bool"
+                },
+                "typeName": {
+                  "id": 148,
+                  "name": "bool",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "123:4:2",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  }
+                },
+                "value": null,
+                "visibility": "internal"
+              }
+            ],
+            "name": "TestStruct",
+            "nodeType": "StructDefinition",
+            "scope": 175,
+            "src": "58:78:2",
+            "visibility": "public"
+          },
+          {
+            "constant": false,
+            "id": 152,
+            "name": "testStruct",
+            "nodeType": "VariableDeclaration",
+            "scope": 175,
+            "src": "142:28:2",
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_struct$_TestStruct_$150_storage",
+              "typeString": "struct TestGetStructVar.TestStruct"
+            },
+            "typeName": {
+              "contractScope": null,
+              "id": 151,
+              "name": "TestStruct",
+              "nodeType": "UserDefinedTypeName",
+              "referencedDeclaration": 150,
+              "src": "142:10:2",
+              "typeDescriptions": {
+                "typeIdentifier": "t_struct$_TestStruct_$150_storage_ptr",
+                "typeString": "struct TestGetStructVar.TestStruct"
+              }
+            },
+            "value": null,
+            "visibility": "public"
+          },
+          {
+            "body": {
+              "id": 173,
+              "nodeType": "Block",
+              "src": "198:95:2",
+              "statements": [
+                {
+                  "expression": {
+                    "argumentTypes": null,
+                    "id": 159,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "leftHandSide": {
+                      "argumentTypes": null,
+                      "expression": {
+                        "argumentTypes": null,
+                        "id": 155,
+                        "name": "testStruct",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 152,
+                        "src": "208:10:2",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_struct$_TestStruct_$150_storage",
+                          "typeString": "struct TestGetStructVar.TestStruct storage ref"
+                        }
+                      },
+                      "id": 157,
+                      "isConstant": false,
+                      "isLValue": true,
+                      "isPure": false,
+                      "lValueRequested": true,
+                      "memberName": "a",
+                      "nodeType": "MemberAccess",
+                      "referencedDeclaration": 145,
+                      "src": "208:12:2",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_uint256",
+                        "typeString": "uint256"
+                      }
+                    },
+                    "nodeType": "Assignment",
+                    "operator": "=",
+                    "rightHandSide": {
+                      "argumentTypes": null,
+                      "hexValue": "313233",
+                      "id": 158,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": true,
+                      "kind": "number",
+                      "lValueRequested": false,
+                      "nodeType": "Literal",
+                      "src": "223:3:2",
+                      "subdenomination": null,
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_rational_123_by_1",
+                        "typeString": "int_const 123"
+                      },
+                      "value": "123"
+                    },
+                    "src": "208:18:2",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "id": 160,
+                  "nodeType": "ExpressionStatement",
+                  "src": "208:18:2"
+                },
+                {
+                  "expression": {
+                    "argumentTypes": null,
+                    "id": 165,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "leftHandSide": {
+                      "argumentTypes": null,
+                      "expression": {
+                        "argumentTypes": null,
+                        "id": 161,
+                        "name": "testStruct",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 152,
+                        "src": "236:10:2",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_struct$_TestStruct_$150_storage",
+                          "typeString": "struct TestGetStructVar.TestStruct storage ref"
+                        }
+                      },
+                      "id": 163,
+                      "isConstant": false,
+                      "isLValue": true,
+                      "isPure": false,
+                      "lValueRequested": true,
+                      "memberName": "b",
+                      "nodeType": "MemberAccess",
+                      "referencedDeclaration": 147,
+                      "src": "236:12:2",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_string_storage",
+                        "typeString": "string storage ref"
+                      }
+                    },
+                    "nodeType": "Assignment",
+                    "operator": "=",
+                    "rightHandSide": {
+                      "argumentTypes": null,
+                      "hexValue": "74657374",
+                      "id": 164,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": true,
+                      "kind": "string",
+                      "lValueRequested": false,
+                      "nodeType": "Literal",
+                      "src": "251:6:2",
+                      "subdenomination": null,
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_stringliteral_9c22ff5f21f0b81b113e63f7db6da94fedef11b2119b4088b89664fb9a3cb658",
+                        "typeString": "literal_string \"test\""
+                      },
+                      "value": "test"
+                    },
+                    "src": "236:21:2",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_string_storage",
+                      "typeString": "string storage ref"
+                    }
+                  },
+                  "id": 166,
+                  "nodeType": "ExpressionStatement",
+                  "src": "236:21:2"
+                },
+                {
+                  "expression": {
+                    "argumentTypes": null,
+                    "id": 171,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "leftHandSide": {
+                      "argumentTypes": null,
+                      "expression": {
+                        "argumentTypes": null,
+                        "id": 167,
+                        "name": "testStruct",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 152,
+                        "src": "267:10:2",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_struct$_TestStruct_$150_storage",
+                          "typeString": "struct TestGetStructVar.TestStruct storage ref"
+                        }
+                      },
+                      "id": 169,
+                      "isConstant": false,
+                      "isLValue": true,
+                      "isPure": false,
+                      "lValueRequested": true,
+                      "memberName": "c",
+                      "nodeType": "MemberAccess",
+                      "referencedDeclaration": 149,
+                      "src": "267:12:2",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_bool",
+                        "typeString": "bool"
+                      }
+                    },
+                    "nodeType": "Assignment",
+                    "operator": "=",
+                    "rightHandSide": {
+                      "argumentTypes": null,
+                      "hexValue": "74727565",
+                      "id": 170,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": true,
+                      "kind": "bool",
+                      "lValueRequested": false,
+                      "nodeType": "Literal",
+                      "src": "282:4:2",
+                      "subdenomination": null,
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_bool",
+                        "typeString": "bool"
+                      },
+                      "value": "true"
+                    },
+                    "src": "267:19:2",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "id": 172,
+                  "nodeType": "ExpressionStatement",
+                  "src": "267:19:2"
+                }
+              ]
+            },
+            "documentation": null,
+            "id": 174,
+            "implemented": true,
+            "isConstructor": true,
+            "isDeclaredConst": false,
+            "modifiers": [],
+            "name": "",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 153,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "188:2:2"
+            },
+            "payable": false,
+            "returnParameters": {
+              "id": 154,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "198:0:2"
+            },
+            "scope": 175,
+            "src": "177:116:2",
+            "stateMutability": "nonpayable",
+            "superFunction": null,
+            "visibility": "public"
+          }
+        ],
+        "scope": 176,
+        "src": "26:269:2"
+      }
+    ],
+    "src": "0:295:2"
+  },
+  "legacyAST": {
+    "absolutePath": "/Volumes/Code/data/www/bonbon_contract/contracts/practices/TestGetStructVar.sol",
+    "exportedSymbols": {
+      "TestGetStructVar": [
+        175
+      ]
+    },
+    "id": 176,
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 143,
+        "literals": [
+          "solidity",
+          "^",
+          "0.4",
+          ".24"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "0:24:2"
+      },
+      {
+        "baseContracts": [],
+        "contractDependencies": [],
+        "contractKind": "contract",
+        "documentation": null,
+        "fullyImplemented": true,
+        "id": 175,
+        "linearizedBaseContracts": [
+          175
+        ],
+        "name": "TestGetStructVar",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "canonicalName": "TestGetStructVar.TestStruct",
+            "id": 150,
+            "members": [
+              {
+                "constant": false,
+                "id": 145,
+                "name": "a",
+                "nodeType": "VariableDeclaration",
+                "scope": 150,
+                "src": "86:9:2",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_uint256",
+                  "typeString": "uint256"
+                },
+                "typeName": {
+                  "id": 144,
+                  "name": "uint256",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "86:7:2",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  }
+                },
+                "value": null,
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 147,
+                "name": "b",
+                "nodeType": "VariableDeclaration",
+                "scope": 150,
+                "src": "105:8:2",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_string_storage_ptr",
+                  "typeString": "string"
+                },
+                "typeName": {
+                  "id": 146,
+                  "name": "string",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "105:6:2",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_string_storage_ptr",
+                    "typeString": "string"
+                  }
+                },
+                "value": null,
+                "visibility": "internal"
+              },
+              {
+                "constant": false,
+                "id": 149,
+                "name": "c",
+                "nodeType": "VariableDeclaration",
+                "scope": 150,
+                "src": "123:6:2",
+                "stateVariable": false,
+                "storageLocation": "default",
+                "typeDescriptions": {
+                  "typeIdentifier": "t_bool",
+                  "typeString": "bool"
+                },
+                "typeName": {
+                  "id": 148,
+                  "name": "bool",
+                  "nodeType": "ElementaryTypeName",
+                  "src": "123:4:2",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  }
+                },
+                "value": null,
+                "visibility": "internal"
+              }
+            ],
+            "name": "TestStruct",
+            "nodeType": "StructDefinition",
+            "scope": 175,
+            "src": "58:78:2",
+            "visibility": "public"
+          },
+          {
+            "constant": false,
+            "id": 152,
+            "name": "testStruct",
+            "nodeType": "VariableDeclaration",
+            "scope": 175,
+            "src": "142:28:2",
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_struct$_TestStruct_$150_storage",
+              "typeString": "struct TestGetStructVar.TestStruct"
+            },
+            "typeName": {
+              "contractScope": null,
+              "id": 151,
+              "name": "TestStruct",
+              "nodeType": "UserDefinedTypeName",
+              "referencedDeclaration": 150,
+              "src": "142:10:2",
+              "typeDescriptions": {
+                "typeIdentifier": "t_struct$_TestStruct_$150_storage_ptr",
+                "typeString": "struct TestGetStructVar.TestStruct"
+              }
+            },
+            "value": null,
+            "visibility": "public"
+          },
+          {
+            "body": {
+              "id": 173,
+              "nodeType": "Block",
+              "src": "198:95:2",
+              "statements": [
+                {
+                  "expression": {
+                    "argumentTypes": null,
+                    "id": 159,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "leftHandSide": {
+                      "argumentTypes": null,
+                      "expression": {
+                        "argumentTypes": null,
+                        "id": 155,
+                        "name": "testStruct",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 152,
+                        "src": "208:10:2",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_struct$_TestStruct_$150_storage",
+                          "typeString": "struct TestGetStructVar.TestStruct storage ref"
+                        }
+                      },
+                      "id": 157,
+                      "isConstant": false,
+                      "isLValue": true,
+                      "isPure": false,
+                      "lValueRequested": true,
+                      "memberName": "a",
+                      "nodeType": "MemberAccess",
+                      "referencedDeclaration": 145,
+                      "src": "208:12:2",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_uint256",
+                        "typeString": "uint256"
+                      }
+                    },
+                    "nodeType": "Assignment",
+                    "operator": "=",
+                    "rightHandSide": {
+                      "argumentTypes": null,
+                      "hexValue": "313233",
+                      "id": 158,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": true,
+                      "kind": "number",
+                      "lValueRequested": false,
+                      "nodeType": "Literal",
+                      "src": "223:3:2",
+                      "subdenomination": null,
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_rational_123_by_1",
+                        "typeString": "int_const 123"
+                      },
+                      "value": "123"
+                    },
+                    "src": "208:18:2",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "id": 160,
+                  "nodeType": "ExpressionStatement",
+                  "src": "208:18:2"
+                },
+                {
+                  "expression": {
+                    "argumentTypes": null,
+                    "id": 165,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "leftHandSide": {
+                      "argumentTypes": null,
+                      "expression": {
+                        "argumentTypes": null,
+                        "id": 161,
+                        "name": "testStruct",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 152,
+                        "src": "236:10:2",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_struct$_TestStruct_$150_storage",
+                          "typeString": "struct TestGetStructVar.TestStruct storage ref"
+                        }
+                      },
+                      "id": 163,
+                      "isConstant": false,
+                      "isLValue": true,
+                      "isPure": false,
+                      "lValueRequested": true,
+                      "memberName": "b",
+                      "nodeType": "MemberAccess",
+                      "referencedDeclaration": 147,
+                      "src": "236:12:2",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_string_storage",
+                        "typeString": "string storage ref"
+                      }
+                    },
+                    "nodeType": "Assignment",
+                    "operator": "=",
+                    "rightHandSide": {
+                      "argumentTypes": null,
+                      "hexValue": "74657374",
+                      "id": 164,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": true,
+                      "kind": "string",
+                      "lValueRequested": false,
+                      "nodeType": "Literal",
+                      "src": "251:6:2",
+                      "subdenomination": null,
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_stringliteral_9c22ff5f21f0b81b113e63f7db6da94fedef11b2119b4088b89664fb9a3cb658",
+                        "typeString": "literal_string \"test\""
+                      },
+                      "value": "test"
+                    },
+                    "src": "236:21:2",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_string_storage",
+                      "typeString": "string storage ref"
+                    }
+                  },
+                  "id": 166,
+                  "nodeType": "ExpressionStatement",
+                  "src": "236:21:2"
+                },
+                {
+                  "expression": {
+                    "argumentTypes": null,
+                    "id": 171,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "leftHandSide": {
+                      "argumentTypes": null,
+                      "expression": {
+                        "argumentTypes": null,
+                        "id": 167,
+                        "name": "testStruct",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 152,
+                        "src": "267:10:2",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_struct$_TestStruct_$150_storage",
+                          "typeString": "struct TestGetStructVar.TestStruct storage ref"
+                        }
+                      },
+                      "id": 169,
+                      "isConstant": false,
+                      "isLValue": true,
+                      "isPure": false,
+                      "lValueRequested": true,
+                      "memberName": "c",
+                      "nodeType": "MemberAccess",
+                      "referencedDeclaration": 149,
+                      "src": "267:12:2",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_bool",
+                        "typeString": "bool"
+                      }
+                    },
+                    "nodeType": "Assignment",
+                    "operator": "=",
+                    "rightHandSide": {
+                      "argumentTypes": null,
+                      "hexValue": "74727565",
+                      "id": 170,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": true,
+                      "kind": "bool",
+                      "lValueRequested": false,
+                      "nodeType": "Literal",
+                      "src": "282:4:2",
+                      "subdenomination": null,
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_bool",
+                        "typeString": "bool"
+                      },
+                      "value": "true"
+                    },
+                    "src": "267:19:2",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "id": 172,
+                  "nodeType": "ExpressionStatement",
+                  "src": "267:19:2"
+                }
+              ]
+            },
+            "documentation": null,
+            "id": 174,
+            "implemented": true,
+            "isConstructor": true,
+            "isDeclaredConst": false,
+            "modifiers": [],
+            "name": "",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 153,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "188:2:2"
+            },
+            "payable": false,
+            "returnParameters": {
+              "id": 154,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "198:0:2"
+            },
+            "scope": 175,
+            "src": "177:116:2",
+            "stateMutability": "nonpayable",
+            "superFunction": null,
+            "visibility": "public"
+          }
+        ],
+        "scope": 176,
+        "src": "26:269:2"
+      }
+    ],
+    "src": "0:295:2"
+  },
+  "compiler": {
+    "name": "solc",
+    "version": "0.4.24+commit.e67f0147.Emscripten.clang"
+  },
+  "networks": {
+    "17": {
+      "events": {},
+      "links": {},
+      "address": "0x29f34bc30db2bf3e6c37484268f14cc4e83f3ef0",
+      "transactionHash": "0x417ac03e916d04b144d495c7ed85f4c39f8454e7a3010dcacb30009a21d79b9f"
+    }
+  },
+  "schemaVersion": "2.0.1",
+  "updatedAt": "2018-09-19T16:17:23.510Z"
+}
