@@ -13,9 +13,9 @@ contract BBT is BurnableToken, PausableToken, SnapshotToken, Whitelist {
 
     uint256 public circulation;
     address public teamWallet;
-    uint256 public constant teamReservedRatio_ = 10;
+    uint256 public constant teamReservedRatio = 10;
 
-    mapping (uint256 => uint256) private snapshotCirculations;   //snapshotId => circulation
+    mapping (uint256 => uint256) private snapshotCirculations_;   //snapshotId => circulation
 
     event Mine(address indexed from, address indexed to, uint256 amount);
     event Release(address indexed from, address indexed to, uint256 amount);
@@ -52,7 +52,7 @@ contract BBT is BurnableToken, PausableToken, SnapshotToken, Whitelist {
         returns(uint256)
     {
         currSnapshotId += 1;
-        snapshotCirculations[currSnapshotId] = circulation;
+        snapshotCirculations_[currSnapshotId] = circulation;
         emit Snapshot(currSnapshotId);
         return currSnapshotId;
     }
@@ -67,7 +67,7 @@ contract BBT is BurnableToken, PausableToken, SnapshotToken, Whitelist {
         returns(uint256)
     {
         require(_snapshotId > 0 && _snapshotId <= currSnapshotId, "invalid snapshot id.");
-        return snapshotCirculations[_snapshotId];
+        return snapshotCirculations_[_snapshotId];
     }
 
     /**
@@ -148,7 +148,7 @@ contract BBT is BurnableToken, PausableToken, SnapshotToken, Whitelist {
         pure
         returns(uint256)
     {
-        return _amount.mul(teamReservedRatio_).div(100 - teamReservedRatio_);
+        return _amount.mul(teamReservedRatio).div(100 - teamReservedRatio);
     }
 
     function unlockTeamBBT(uint256 _unlockAmount, string _source)
