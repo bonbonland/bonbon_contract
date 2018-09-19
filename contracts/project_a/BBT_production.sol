@@ -47,6 +47,7 @@ contract BBT is BurnableToken, PausableToken, SnapshotToken, Whitelist {
      */
     function snapshot()
         onlyIfWhitelisted(msg.sender)
+        whenNotPaused
         public
         returns(uint256)
     {
