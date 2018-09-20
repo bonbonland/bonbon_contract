@@ -37,7 +37,7 @@ module.exports = function(done) {
       })
     }
 
-    let deposit = async () => {
+    let deposit = async (round) => {
       let inWhiteList = await deployedDividend.whitelist.call(accountA)
       if (!inWhiteList) {
         console.log('accountA is not in whitelist. now adding it.')
@@ -46,10 +46,17 @@ module.exports = function(done) {
           from: accountB.toLowerCase()
         })
       }
-      console.log('starting test dividend deposit.')
-      await deployedDividend.deposit(1, {
+      console.log('!!! starting test dividend deposit.')
+      await deployedDividend.deposit(round, {
         from: accountA.toLowerCase(),
         value: web3.utils.toWei('0.1', 'ether')
+      })
+    }
+
+    let distribute = async (round) => {
+      console.log('!!! starting test distribute')
+      await deployedDividend.distribute(round, {
+        from: accountA.toLowerCase(),
       })
     }
 
@@ -57,18 +64,57 @@ module.exports = function(done) {
       let balance = await web3.eth.getBalance(deployedDividend.address)
       console.log('dividend contract balance is : ' + new BN(balance).div(1e18).toFixed(4))
       let [roundId, dividend, isEnded] = await deployedDividend.currentRound_()
-      console.log('dividend currentRound_ info :', new BN(roundId).toString(), new BN(dividend).div(1e18).toFixed(4), isEnded)
+      console.log('dividend currentRound_ info :', 'round : ' + new BN(roundId).toString(), 'dividend : ' + new BN(dividend).div(1e18).toFixed(4), isEnded)
       let cumulativeDividend = await deployedDividend.cumulativeDividend()
       console.log('cumulativeDividend is : ' + new BN(cumulativeDividend).div(1e18).toFixed(4))
+      let currentSnapshotId = await deployedBBT.currSnapshotId.call()
+      console.log('current snapshot id is : ' + currentSnapshotId)
+      let roundsCount = await deployedDividend.getRoundsCount.call()
+      console.log('rounds count is : ' + roundsCount)
+    }
+
+    let printRoundInfo = async (round) => {
+      let [snapshotId, dividend] = await deployedDividend.roundsInfo_(round)
+      console.log('roundInfo [' + round + ']', 'snapshotId : ' + new BN(snapshotId).toString(), 'dividend : ' + new BN(dividend).div(1e18).toFixed(4))
+    }
+
+    let printPlayerDividend = async (account) => {
+      let totalDividend = await deployedDividend.getPlayerTotalDividend.call(account)
+      let leftDividend = await deployedDividend.getPlayerLeftDividend.call(account)
+      console.log('total dividend is : ' + new BN(totalDividend).div(1e18).toFixed(4) + '. left dividend is : ' + new BN(leftDividend).div(1e18).toFixed(4))
+    }
+
+    let printPlayerRoundDividend = async (account, round) => {
+      // let playerBalanceAt = new BN(await deployedBBT.balanceOfAt.call(account, 5)).div(1e18).toFixed(4)
+      let dividend = new BN(await deployedDividend.getPlayerRoundDividend(account, round)).div(1e18).toFixed(4)
+      console.log(`plyr round dividend round[${round}] is ${dividend}`)
+      // console.log('ply balance at snapshot 5 is ' + playerBalanceAt)
+    }
+
+    let printPlayerBalanceRatio = async (account) => {
+      let balance = new BN(await deployedBBT.balanceOf.call(account)).div(1e18).toFixed(4)
+      let circulation = new BN(await deployedBBT.circulation.call()).div(1e18).toFixed(4)
+      let ratio = balance / circulation;
+      console.log(`balance is ${balance}, circulation is ${circulation}, ratio is ${ratio}`)
     }
 
     // await printInfo()
     // await testTransfer()
     // await printInfo()
 
-    await printDividendContractInfo()
-    await deposit()
-    await printDividendContractInfo()
+    //test deposit and distribute
+    // await printDividendContractInfo()
+    // // await deposit(1)  //round = 1
+    // // await deposit(4)
+    // await distribute(1)
+    // // await printRoundInfo(3)
+    // await printDividendContractInfo()
+
+    //test player dividend data and withdraw
+    await printRoundInfo(1)
+    await printPlayerRoundDividend(accountA, 1)
+    // await printPlayerDividend(accountA)
+    // await printPlayerBalanceRatio(accountA)
 
     return done()
   }

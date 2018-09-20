@@ -77,7 +77,8 @@ contract Dividend is Whitelist, Pausable {
             require(currentRound_.isEnded == false, "this round has ended. can not deposit.");
             currentRound_.dividend = (currentRound_.dividend).add(msg.value);
         } else {    // new round
-            require(currentRound_.isEnded == true, "last round not end. can not deposit new round.");
+            if (currentRound_.roundId > 0)  //when first deposit come in, don't check isEnded.
+                require(currentRound_.isEnded == true, "last round not end. can not deposit new round.");
             currentRound_.roundId = _round;
             currentRound_.isEnded = false;
             currentRound_.dividend = msg.value;
@@ -148,7 +149,8 @@ contract Dividend is Whitelist, Pausable {
         require(_roundId > 0 && _roundId <= roundIds_.length, 'invalid round id.');
 
         RoundInfo storage roundInfo = roundsInfo_[_roundId];
-        uint256 plyRoundBBT = BBT.balanceOfAt(_plyAddr, roundInfo.bbtSnapshotId);
+        // cause circulation divide token decimal, so the balance should divide too.
+        uint256 plyRoundBBT = (BBT.balanceOfAt(_plyAddr, roundInfo.bbtSnapshotId)).div(1e18);
         return plyRoundBBT.mul(getRoundDividendPerBBTHelper(_roundId));
     }
 
@@ -186,7 +188,12 @@ contract Dividend is Whitelist, Pausable {
         if (roundInfo.dividend == 0)
             return 0;
 
-        uint256 circulationAtSnapshot = BBT.circulationAt(roundInfo.bbtSnapshotId);
+        // must divide token decimal, or circulation is greater than dividend,
+        // the result will be 0, not 0.xxx(cause solidity not support float.)
+        // and the func which rely on this helper will get the result 0 too.
+        uint256 circulationAtSnapshot = (BBT.circulationAt(roundInfo.bbtSnapshotId)).div(1e18);
+        if (circulationAtSnapshot == 0)
+            return 0;
         return (roundInfo.dividend).div(circulationAtSnapshot);
     }
 }
