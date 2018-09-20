@@ -39,9 +39,9 @@ module.exports = function(done) {
 
     await printInfo()
     await testMakeSnapshot()
-    // await testReleaseAndUnlock()
+    await testReleaseAndUnlock()
     // await printInfo()
-    await printCirculationAt(3)
+    await printCirculationAt(1)
 
     return done()
   }

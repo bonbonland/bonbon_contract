@@ -1,7 +1,9 @@
 module.exports = function(done) {
   const BBT = artifacts.require('./project_a/BBT.sol')
   const Dividend = artifacts.require('./project_a/Dividend.sol')
-  const web3 = require('web3')
+  const Web3 = require('web3')
+  const config =require('../../tools/config.js')
+  const web3 = new Web3(config.envConfig.DEV_CHAIN_HTTP_HOST)
   const BN = require('bignumber.js')
   const accountA = '0xF83c5c0be4c0803ECA56a4CBf02b07F6E6BbDa9c'
   const accountB = '0xA08d4485E50d28E60A41cb015203fDB3D1dE6C8C'
@@ -9,6 +11,7 @@ module.exports = function(done) {
 
   let run = async () => {
     let deployedBBT = await BBT.deployed()
+    let deployedDividend = await Dividend.deployed()
 
     let printInfo = async () => {
       let accountABalance = new BN(await deployedBBT.balanceOf.call(accountA)).div(1e18).toFixed(4)
@@ -34,9 +37,38 @@ module.exports = function(done) {
       })
     }
 
-    await printInfo()
-    await testTransfer()
-    await printInfo()
+    let deposit = async () => {
+      let inWhiteList = await deployedDividend.whitelist.call(accountA)
+      if (!inWhiteList) {
+        console.log('accountA is not in whitelist. now adding it.')
+        await deployedDividend.addAddressToWhitelist(accountA, {
+          //from: accountA.toLowerCase()  //这里测试Owner修饰, accountB才是默认创建合约的地址(owner)
+          from: accountB.toLowerCase()
+        })
+      }
+      console.log('starting test dividend deposit.')
+      await deployedDividend.deposit(1, {
+        from: accountA.toLowerCase(),
+        value: web3.utils.toWei('0.1', 'ether')
+      })
+    }
+
+    let printDividendContractInfo = async () => {
+      let balance = await web3.eth.getBalance(deployedDividend.address)
+      console.log('dividend contract balance is : ' + new BN(balance).div(1e18).toFixed(4))
+      let [roundId, dividend, isEnded] = await deployedDividend.currentRound_()
+      console.log('dividend currentRound_ info :', new BN(roundId).toString(), new BN(dividend).div(1e18).toFixed(4), isEnded)
+      let cumulativeDividend = await deployedDividend.cumulativeDividend()
+      console.log('cumulativeDividend is : ' + new BN(cumulativeDividend).div(1e18).toFixed(4))
+    }
+
+    // await printInfo()
+    // await testTransfer()
+    // await printInfo()
+
+    await printDividendContractInfo()
+    await deposit()
+    await printDividendContractInfo()
 
     return done()
   }

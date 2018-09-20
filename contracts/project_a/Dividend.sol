@@ -76,12 +76,14 @@ contract Dividend is Whitelist, Pausable {
         if (_round == currentRound_.roundId) {
             require(currentRound_.isEnded == false, "this round has ended. can not deposit.");
             currentRound_.dividend = (currentRound_.dividend).add(msg.value);
-            cumulativeDividend = cumulativeDividend.add(msg.value);
         } else {    // new round
+            require(currentRound_.isEnded == true, "last round not end. can not deposit new round.");
             currentRound_.roundId = _round;
             currentRound_.isEnded = false;
             currentRound_.dividend = msg.value;
         }
+
+        cumulativeDividend = cumulativeDividend.add(msg.value);
 
         emit Deposited(msg.sender, _round, msg.value);
         return true;

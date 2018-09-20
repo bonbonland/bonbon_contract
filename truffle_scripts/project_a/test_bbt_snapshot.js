@@ -49,7 +49,7 @@ module.exports = function(done) {
     await testMakeSnapshot()
     // await testTransfer()
     // await printInfo()
-    await printSnapshotInfo(5)
+    await printSnapshotInfo(1)
 
     return done()
   }

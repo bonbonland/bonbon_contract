@@ -1,6 +1,6 @@
 module.exports = function(done) {
   const BBT = artifacts.require('./project_a/BBT.sol')
-  const web3 = require('web3')
+  const Web3 = require('web3')
   const BN = require('bignumber.js')
   const accountA = '0xF83c5c0be4c0803ECA56a4CBf02b07F6E6BbDa9c'
   const accountB = '0xA08d4485E50d28E60A41cb015203fDB3D1dE6C8C'
@@ -33,7 +33,7 @@ module.exports = function(done) {
     }
 
     let testMine = async () => {
-      inWhiteList = await deployedBBT.whitelist.call(accountA)
+      let inWhiteList = await deployedBBT.whitelist.call(accountA)
       if (!inWhiteList) {
         console.log('accountA is not in whitelist. now adding it.')
         await deployedBBT.addAddressToWhitelist(accountA, {
