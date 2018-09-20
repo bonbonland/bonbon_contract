@@ -5,12 +5,12 @@ import 'openzeppelin-solidity/contracts/lifecycle/Pausable.sol';
 import 'openzeppelin-solidity/contracts/math/SafeMath.sol';
 
 interface BBTxInterface {
-    function snapshot() public returns(uint256);
-    function circulationAt(uint256 _snapshotId) public view returns(uint256);
-    function balanceOfAt(address _account, uint256 _snapshotId) public view returns (uint256);
+    function snapshot() external returns(uint256);
+    function circulationAt(uint256 _snapshotId) external view returns(uint256);
+    function balanceOfAt(address _account, uint256 _snapshotId) external view returns (uint256);
 }
 
-contract Dividend {
+contract Dividend is Whitelist, Pausable {
     using SafeMath for *;
 
     struct RoundInfo {
@@ -67,6 +67,7 @@ contract Dividend {
         onlyIfWhitelisted(msg.sender)
         whenNotPaused
         public
+        payable
         returns(bool)
     {
         require(msg.value > 0, "deposit amount should not be empty.");
@@ -79,7 +80,7 @@ contract Dividend {
         } else {    // new round
             currentRound_.roundId = _round;
             currentRound_.isEnded = false;
-            currentRound_.dividend = mag.value;
+            currentRound_.dividend = msg.value;
         }
 
         emit Deposited(msg.sender, _round, msg.value);
@@ -106,7 +107,7 @@ contract Dividend {
             currentRound_.dividend = 0;
         }
 
-        RoundInfo roundInfo;
+        RoundInfo memory roundInfo;
         roundInfo.bbtSnapshotId = BBT.snapshot();
         roundInfo.dividend = currentRound_.dividend;
         roundsInfo_[currentRound_.roundId] = roundInfo;
@@ -144,7 +145,7 @@ contract Dividend {
     {
         require(_roundId > 0 && _roundId <= roundIds_.length, 'invalid round id.');
 
-        RoundInfo roundInfo = roundsInfo_[_roundId];
+        RoundInfo storage roundInfo = roundsInfo_[_roundId];
         uint256 plyRoundBBT = BBT.balanceOfAt(_plyAddr, roundInfo.bbtSnapshotId);
         return plyRoundBBT.mul(getRoundDividendPerBBTHelper(_roundId));
     }
@@ -178,7 +179,7 @@ contract Dividend {
         view
         returns(uint256)
     {
-        RoundInfo roundInfo = roundsInfo_[_roundId];
+        RoundInfo storage roundInfo = roundsInfo_[_roundId];
 
         if (roundInfo.dividend == 0)
             return 0;
