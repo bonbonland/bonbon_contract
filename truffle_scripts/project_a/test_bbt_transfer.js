@@ -19,7 +19,7 @@ module.exports = function(done) {
 
     let testTransfer = async () => {
       console.log('starting test transfer.')
-      await deployedBBT.transfer(accountB, new BN('100').mul(1e18), {
+      await deployedBBT.transfer(accountB, new BN('100').times(1e18).toString(), {
         from: accountA.toLowerCase(),
       })
     }

@@ -26,7 +26,7 @@ module.exports = function(done) {
 
     let testReleaseAndUnlock = async () => {
       console.log('test releaseAndUnlock.')
-      await deployedBBT.releaseAndUnlock(accountA, new BN('300').mul(1e18), {
+      await deployedBBT.releaseAndUnlock(accountA, new BN('300').times(1e18).toString(), {
         //from: accountA.toLowerCase()  //accountA非owner，报错
         from: accountB.toLowerCase()  //accountB为owner
       })

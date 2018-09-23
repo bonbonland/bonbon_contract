@@ -42,7 +42,7 @@ module.exports = function(done) {
         })
       } else {
         console.log('accountA is in whitelist. now start test mine func.')
-        await deployedBBT.mine(accountA, new BN('100').mul(1e18), {
+        await deployedBBT.mine(accountA, new BN('100').times(1e18).toString(), {
           from: accountA.toLowerCase()  //accountA被添加进白名单了
         })
       }
@@ -50,7 +50,7 @@ module.exports = function(done) {
 
     let testRelease = async () => {
       console.log('test release.')
-      await deployedBBT.release(accountA, new BN('200').mul(1e18), {
+      await deployedBBT.release(accountA, new BN('200').times(1e18).toString(), {
         //from: accountA.toLowerCase()  //accountA非owner，报错
         from: accountB.toLowerCase()  //accountB为owner
       })
@@ -58,7 +58,7 @@ module.exports = function(done) {
 
     let testReleaseAndUnlock = async () => {
       console.log('test releaseAndUnlock.')
-      await deployedBBT.releaseAndUnlock(accountA, new BN('300').mul(1e18), {
+      await deployedBBT.releaseAndUnlock(accountA, new BN('300').times(1e18).toString(), {
         //from: accountA.toLowerCase()  //accountA非owner，报错
         from: accountB.toLowerCase()  //accountB为owner
       })
