@@ -10684,11 +10684,23 @@
           ],
           "name": "Transfer",
           "type": "event"
+        },
+        "0x8030e83b04d87bef53480e26263266d6ca66863aa8506aca6f2559d18aa1cb67": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "name": "id",
+              "type": "uint256"
+            }
+          ],
+          "name": "Snapshot",
+          "type": "event"
         }
       },
       "links": {},
-      "address": "0xc2fbd1fc205a4b37f685bfd6047dcf3a4b4e9df7",
-      "transactionHash": "0xb51c10bb9e0a4566ab7def45814a695c9b8cf5fa2002a7c49f8092817b2ea6f3"
+      "address": "0xfc185190a9dd71938fde511cbcd88aae2bfb7d2c",
+      "transactionHash": "0xfc3a878e451b186cd412e1255d0d2c76b529115db51b176953528d27c0fb45af"
     },
     "17": {
       "events": {
@@ -10930,5 +10942,5 @@
     }
   },
   "schemaVersion": "2.0.1",
-  "updatedAt": "2018-09-20T07:42:47.928Z"
+  "updatedAt": "2018-09-23T07:28:22.612Z"
 }
