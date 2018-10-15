@@ -25,7 +25,7 @@ module.exports = function(done) {
       }
     }
 
-    await addWhitelist('0x2b81fe02d0ae567f588a67561001cdd9facae032')
+    await addWhitelist('0x004de023d7f48219e72e3a2cfc38a42fb1a0fa00')
 
     return done()
   }
