@@ -1,6 +1,5 @@
 pragma solidity ^0.4.24;
 
-import 'openzeppelin-solidity/contracts/access/Whitelist.sol';
 import 'openzeppelin-solidity/contracts/lifecycle/Pausable.sol';
 import 'openzeppelin-solidity/contracts/math/SafeMath.sol';
 
@@ -10,7 +9,7 @@ interface BBTxInterface {
     function balanceOfAt(address _account, uint256 _snapshotId) external view returns (uint256);
 }
 
-contract Dividend is Whitelist, Pausable {
+contract Dividend is Pausable {
     using SafeMath for *;
 
     struct RoundInfo {
@@ -25,16 +24,16 @@ contract Dividend is Whitelist, Pausable {
     }
 
     BBTxInterface private BBT;   // BBT contract
-    CurrentRoundInfo public currentRound_;  // current round information
-    mapping (address => uint256) public playersWithdrew_;    // (plyAddr => withdrewEth)
-    mapping (uint256 => RoundInfo) public roundsInfo_;  // roundId => RoundInfo
-    uint256[] public roundIds_;
-    uint256 public cumulativeDividend;  // cumulative total dividend;
+    mapping (uint256 => CurrentRoundInfo) public currentRound_;  // (gameId => current round information)
+    mapping (uint256 => mapping(address => uint256)) public playersWithdrew_;    // (gameId => plyAddr => withdrewEth)
+    mapping (uint256 => mapping(uint256 => RoundInfo)) public roundsInfo_;  // gameId => roundId => RoundInfo
+    mapping (uint256 => uint256[]) public roundIds_;    //gameId => roundIds
+    mapping (uint256 => uint256) public cumulativeDividend;  // cumulative total dividend;
     address[] public games;    //registered games (gameID => gameContractAddress)
 
-    event Deposited(address indexed _from, uint256 indexed _round, uint256 _value);
-    event Distributed(uint256 indexed _roundId, uint256 bbtSnapshotId, uint256 dividend);
-    event Withdrew(address indexed _from, uint256 _value);
+    event Deposited(uint256 indexed _gameId, address indexed _from, uint256 indexed _round, uint256 _value);
+    event Distributed(uint256 indexed _gameId, uint256 indexed _roundId, uint256 bbtSnapshotId, uint256 dividend);
+    event Withdrew(uint256 indexed _gameId, address indexed _from, uint256 _value);
 
     constructor(address _bbtAddress) public {
         BBT = BBTxInterface(_bbtAddress);
@@ -56,6 +55,11 @@ contract Dividend is Whitelist, Pausable {
     modifier onlyRegistered(address _gameAddress) {
         bool ifRegistered = hasRegistered(_gameAddress);
         require(ifRegistered == true, 'not registered.');
+        _;
+    }
+
+    modifier validGameId(uint256 _gameId) {
+        require(_gameId < games.length, 'invalid gameId.');
         _;
     }
 
@@ -127,8 +131,13 @@ contract Dividend is Whitelist, Pausable {
     /**
      * @dev get count of game rounds
      */
-    function getRoundsCount() public view returns(uint256) {
-        return roundIds_.length;
+    function getRoundsCount(uint256 _gameId)
+        validGameId(_gameId)
+        public
+        view
+        returns(uint256)
+    {
+        return roundIds_[_gameId].length;
     }
 
     /**
@@ -137,29 +146,30 @@ contract Dividend is Whitelist, Pausable {
      * @return deposit success.
      */
     function deposit(uint256 _round)
-        onlyIfWhitelisted(msg.sender)
+        onlyRegistered(msg.sender)
         whenNotPaused
         public
         payable
         returns(bool)
     {
+        uint256 gameId = getGameId(msg.sender);
         require(msg.value > 0, "deposit amount should not be empty.");
-        require(_round > 0 && _round >= currentRound_.roundId, "can not deposit dividend for past round.");
+        require(_round > 0 && _round >= currentRound_[gameId].roundId, "can not deposit dividend for past round.");
 
-        if (_round == currentRound_.roundId) {
-            require(currentRound_.isEnded == false, "this round has ended. can not deposit.");
-            currentRound_.dividend = (currentRound_.dividend).add(msg.value);
+        if (_round == currentRound_[gameId].roundId) {
+            require(currentRound_[gameId].isEnded == false, "this round has ended. can not deposit.");
+            currentRound_[gameId].dividend = (currentRound_[gameId].dividend).add(msg.value);
         } else {    // new round
-            if (currentRound_.roundId > 0)  //when first deposit come in, don't check isEnded.
-                require(currentRound_.isEnded == true, "last round not end. can not deposit new round.");
-            currentRound_.roundId = _round;
-            currentRound_.isEnded = false;
-            currentRound_.dividend = msg.value;
+            if (currentRound_[gameId].roundId > 0)  //when first deposit come in, don't check isEnded.
+                require(currentRound_[gameId].isEnded == true, "last round not end. can not deposit new round.");
+            currentRound_[gameId].roundId = _round;
+            currentRound_[gameId].isEnded = false;
+            currentRound_[gameId].dividend = msg.value;
         }
 
-        cumulativeDividend = cumulativeDividend.add(msg.value);
+        cumulativeDividend[gameId] = cumulativeDividend[gameId].add(msg.value);
 
-        emit Deposited(msg.sender, _round, msg.value);
+        emit Deposited(gameId, msg.sender, _round, msg.value);
         return true;
     }
 
@@ -169,94 +179,98 @@ contract Dividend is Whitelist, Pausable {
      * @return distributed success.
      */
     function distribute(uint256 _round)
-        onlyIfWhitelisted(msg.sender)
+        onlyRegistered(msg.sender)
         whenNotPaused
         public
         returns(bool)
     {
-        require(_round > 0 && _round >= currentRound_.roundId, "can not distribute dividend for past round.");
+        uint256 gameId = getGameId(msg.sender);
+        require(_round > 0 && _round >= currentRound_[gameId].roundId, "can not distribute dividend for past round.");
 
-        if (_round == currentRound_.roundId) {
-            require(currentRound_.isEnded == false, "this round has ended. can not distribute again.");
+        if (_round == currentRound_[gameId].roundId) {
+            require(currentRound_[gameId].isEnded == false, "this round has ended. can not distribute again.");
         } else {    //when this round has no deposit
-            currentRound_.roundId = _round;
-            currentRound_.dividend = 0;
+            require(currentRound_[gameId].isEnded == true, "last round not end. can not distribute new round.");
+            currentRound_[gameId].roundId = _round;
+            currentRound_[gameId].dividend = 0;
         }
 
         RoundInfo memory roundInfo;
         roundInfo.bbtSnapshotId = BBT.snapshot();
-        roundInfo.dividend = currentRound_.dividend;
-        roundsInfo_[currentRound_.roundId] = roundInfo;
-        roundIds_.push(currentRound_.roundId);
+        roundInfo.dividend = currentRound_[gameId].dividend;
+        roundsInfo_[gameId][currentRound_[gameId].roundId] = roundInfo;
+        roundIds_[gameId].push(currentRound_[gameId].roundId);
 
-        currentRound_.isEnded = true;   //mark this round is ended
+        currentRound_[gameId].isEnded = true;   //mark this round is ended
 
-        emit Distributed(currentRound_.roundId, roundInfo.bbtSnapshotId, roundInfo.dividend);
+        emit Distributed(gameId, currentRound_[gameId].roundId, roundInfo.bbtSnapshotId, roundInfo.dividend);
         return true;
     }
 
     /**
      * @dev player withdraw dividend out.
      */
-    function withdraw()
+    function withdraw(uint256 _gameId)
+        validGameId(_gameId)
         whenNotPaused
         isHuman
         public
     {
-        uint256 plyLeftDividend = getPlayerLeftDividend(msg.sender);
+        uint256 plyLeftDividend = getPlayerLeftDividend(_gameId, msg.sender);
         if (plyLeftDividend > 0) {
-            msg.sender.transfer(plyLeftDividend);
-            playersWithdrew_[msg.sender] = (playersWithdrew_[msg.sender]).add(plyLeftDividend);
+            (msg.sender).transfer(plyLeftDividend);
+            playersWithdrew_[_gameId][msg.sender] = (playersWithdrew_[_gameId][msg.sender]).add(plyLeftDividend);
         }
-        emit Withdrew(msg.sender, plyLeftDividend);
+        emit Withdrew(_gameId, msg.sender, plyLeftDividend);
     }
 
     /**
      * @dev get player dividend by round id.
      */
-    function getPlayerRoundDividend(address _plyAddr, uint256 _roundId)
+    function getPlayerRoundDividend(uint256 _gameId, address _plyAddr, uint256 _roundId)
+        validGameId(_gameId)
         public
         view
         returns(uint256)
     {
-        require(_roundId > 0 && _roundId <= roundIds_.length, 'invalid round id.');
-
-        RoundInfo storage roundInfo = roundsInfo_[_roundId];
+        RoundInfo storage roundInfo = roundsInfo_[_gameId][_roundId];
         // cause circulation divide token decimal, so the balance should divide too.
         uint256 plyRoundBBT = (BBT.balanceOfAt(_plyAddr, roundInfo.bbtSnapshotId)).div(1e18);
-        return plyRoundBBT.mul(getRoundDividendPerBBTHelper(_roundId));
+        return plyRoundBBT.mul(getRoundDividendPerBBTHelper(_gameId, _roundId));
     }
 
-    function getPlayerTotalDividend(address _plyAddr)
+    function getPlayerTotalDividend(uint256 _gameId, address _plyAddr)
+        validGameId(_gameId)
         public
         view
         returns(uint256)
     {
         uint256 plyTotalDividend;
-        for (uint256 i = 0; i < roundIds_.length; i++) {
-            uint256 roundId = roundIds_[i];
-            plyTotalDividend = plyTotalDividend.add(getPlayerRoundDividend(_plyAddr, roundId));
+        for (uint256 i = 0; i < roundIds_[_gameId].length; i++) {
+            uint256 roundId = roundIds_[_gameId][i];
+            plyTotalDividend = plyTotalDividend.add(getPlayerRoundDividend(_gameId, _plyAddr, roundId));
         }
         return plyTotalDividend;
     }
 
-    function getPlayerLeftDividend(address _plyAddr)
+    function getPlayerLeftDividend(uint256 _gameId, address _plyAddr)
+        validGameId(_gameId)
         public
         view
         returns(uint256)
     {
-        return (getPlayerTotalDividend(_plyAddr)).sub(playersWithdrew_[_plyAddr]);
+        return (getPlayerTotalDividend(_gameId, _plyAddr)).sub(playersWithdrew_[_gameId][_plyAddr]);
     }
 
     /**
      * @dev calculate dividend per BBT by round id.
      */
-    function getRoundDividendPerBBTHelper(uint256 _roundId)
+    function getRoundDividendPerBBTHelper(uint256 _gameId, uint256 _roundId)
         internal
         view
         returns(uint256)
     {
-        RoundInfo storage roundInfo = roundsInfo_[_roundId];
+        RoundInfo storage roundInfo = roundsInfo_[_gameId][_roundId];
 
         if (roundInfo.dividend == 0)
             return 0;

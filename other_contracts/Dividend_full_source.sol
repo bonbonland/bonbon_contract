@@ -64,247 +64,6 @@ contract Ownable {
 }
 
 /**
- * @title Roles
- * @author Francisco Giordano (@frangio)
- * @dev Library for managing addresses assigned to a Role.
- * See RBAC.sol for example usage.
- */
-library Roles {
-    struct Role {
-        mapping (address => bool) bearer;
-    }
-
-    /**
-     * @dev give an address access to this role
-     */
-    function add(Role storage _role, address _addr)
-        internal
-    {
-        _role.bearer[_addr] = true;
-    }
-
-    /**
-     * @dev remove an address' access to this role
-     */
-    function remove(Role storage _role, address _addr)
-        internal
-    {
-        _role.bearer[_addr] = false;
-    }
-
-    /**
-     * @dev check if an address has this role
-     * // reverts
-     */
-    function check(Role storage _role, address _addr)
-        internal
-        view
-    {
-        require(has(_role, _addr));
-    }
-
-    /**
-     * @dev check if an address has this role
-     * @return bool
-     */
-    function has(Role storage _role, address _addr)
-        internal
-        view
-        returns (bool)
-    {
-        return _role.bearer[_addr];
-    }
-}
-
-/**
- * @title RBAC (Role-Based Access Control)
- * @author Matt Condon (@Shrugs)
- * @dev Stores and provides setters and getters for roles and addresses.
- * Supports unlimited numbers of roles and addresses.
- * See //contracts/mocks/RBACMock.sol for an example of usage.
- * This RBAC method uses strings to key roles. It may be beneficial
- * for you to write your own implementation of this interface using Enums or similar.
- */
-contract RBAC {
-    using Roles for Roles.Role;
-
-    mapping (string => Roles.Role) private roles;
-
-    event RoleAdded(address indexed operator, string role);
-    event RoleRemoved(address indexed operator, string role);
-
-    /**
-     * @dev reverts if addr does not have role
-     * @param _operator address
-     * @param _role the name of the role
-     * // reverts
-     */
-    function checkRole(address _operator, string _role)
-        public
-        view
-    {
-        roles[_role].check(_operator);
-    }
-
-    /**
-     * @dev determine if addr has role
-     * @param _operator address
-     * @param _role the name of the role
-     * @return bool
-     */
-    function hasRole(address _operator, string _role)
-        public
-        view
-        returns (bool)
-    {
-        return roles[_role].has(_operator);
-    }
-
-    /**
-     * @dev add a role to an address
-     * @param _operator address
-     * @param _role the name of the role
-     */
-    function addRole(address _operator, string _role)
-        internal
-    {
-        roles[_role].add(_operator);
-        emit RoleAdded(_operator, _role);
-    }
-
-    /**
-     * @dev remove a role from an address
-     * @param _operator address
-     * @param _role the name of the role
-     */
-    function removeRole(address _operator, string _role)
-        internal
-    {
-        roles[_role].remove(_operator);
-        emit RoleRemoved(_operator, _role);
-    }
-
-    /**
-     * @dev modifier to scope access to a single role (uses msg.sender as addr)
-     * @param _role the name of the role
-     * // reverts
-     */
-    modifier onlyRole(string _role)
-    {
-        checkRole(msg.sender, _role);
-        _;
-    }
-
-    /**
-     * @dev modifier to scope access to a set of roles (uses msg.sender as addr)
-     * @param _roles the names of the roles to scope access to
-     * // reverts
-     *
-     * @TODO - when solidity supports dynamic arrays as arguments to modifiers, provide this
-     *  see: https://github.com/ethereum/solidity/issues/2467
-     */
-    // modifier onlyRoles(string[] _roles) {
-    //     bool hasAnyRole = false;
-    //     for (uint8 i = 0; i < _roles.length; i++) {
-    //         if (hasRole(msg.sender, _roles[i])) {
-    //             hasAnyRole = true;
-    //             break;
-    //         }
-    //     }
-
-    //     require(hasAnyRole);
-
-    //     _;
-    // }
-}
-
-
-/**
- * @title Whitelist
- * @dev The Whitelist contract has a whitelist of addresses, and provides basic authorization control functions.
- * This simplifies the implementation of "user permissions".
- */
-contract Whitelist is Ownable, RBAC {
-    string public constant ROLE_WHITELISTED = "whitelist";
-
-    /**
-     * @dev Throws if operator is not whitelisted.
-     * @param _operator address
-     */
-    modifier onlyIfWhitelisted(address _operator) {
-        checkRole(_operator, ROLE_WHITELISTED);
-        _;
-    }
-
-    /**
-     * @dev add an address to the whitelist
-     * @param _operator address
-     * @return true if the address was added to the whitelist, false if the address was already in the whitelist
-     */
-    function addAddressToWhitelist(address _operator)
-        public
-        onlyOwner
-    {
-        addRole(_operator, ROLE_WHITELISTED);
-    }
-
-    /**
-     * @dev getter to determine if address is in whitelist
-     */
-    function whitelist(address _operator)
-        public
-        view
-        returns (bool)
-    {
-        return hasRole(_operator, ROLE_WHITELISTED);
-    }
-
-    /**
-     * @dev add addresses to the whitelist
-     * @param _operators addresses
-     * @return true if at least one address was added to the whitelist,
-     * false if all addresses were already in the whitelist
-     */
-    function addAddressesToWhitelist(address[] _operators)
-        public
-        onlyOwner
-    {
-        for (uint256 i = 0; i < _operators.length; i++) {
-            addAddressToWhitelist(_operators[i]);
-        }
-    }
-
-    /**
-     * @dev remove an address from the whitelist
-     * @param _operator address
-     * @return true if the address was removed from the whitelist,
-     * false if the address wasn't in the whitelist in the first place
-     */
-    function removeAddressFromWhitelist(address _operator)
-        public
-        onlyOwner
-    {
-        removeRole(_operator, ROLE_WHITELISTED);
-    }
-
-    /**
-     * @dev remove addresses from the whitelist
-     * @param _operators addresses
-     * @return true if at least one address was removed from the whitelist,
-     * false if all addresses weren't in the whitelist in the first place
-     */
-    function removeAddressesFromWhitelist(address[] _operators)
-        public
-        onlyOwner
-    {
-        for (uint256 i = 0; i < _operators.length; i++) {
-            removeAddressFromWhitelist(_operators[i]);
-        }
-    }
-
-}
-
-/**
  * @title Pausable
  * @dev Base contract which allows children to implement an emergency stop mechanism.
  */
@@ -405,7 +164,7 @@ interface BBTxInterface {
     function balanceOfAt(address _account, uint256 _snapshotId) external view returns (uint256);
 }
 
-contract Dividend is Whitelist, Pausable {
+contract Dividend is Pausable {
     using SafeMath for *;
 
     struct RoundInfo {
@@ -420,18 +179,20 @@ contract Dividend is Whitelist, Pausable {
     }
 
     BBTxInterface private BBT;   // BBT contract
-    CurrentRoundInfo public currentRound_;  // current round information
-    mapping (address => uint256) public playersWithdrew_;    // (plyAddr => withdrewEth)
-    mapping (uint256 => RoundInfo) public roundsInfo_;  // roundId => RoundInfo
-    uint256[] public roundIds_;
-    uint256 public cumulativeDividend;  // cumulative total dividend;
+    mapping (uint256 => CurrentRoundInfo) public currentRound_;  // (gameId => current round information)
+    mapping (uint256 => mapping(address => uint256)) public playersWithdrew_;    // (gameId => plyAddr => withdrewEth)
+    mapping (uint256 => mapping(uint256 => RoundInfo)) public roundsInfo_;  // gameId => roundId => RoundInfo
+    mapping (uint256 => uint256[]) public roundIds_;    //gameId => roundIds
+    mapping (uint256 => uint256) public cumulativeDividend;  // cumulative total dividend;
+    address[] public games;    //registered games (gameID => gameContractAddress)
 
-    event Deposited(address indexed _from, uint256 indexed _round, uint256 _value);
-    event Distributed(uint256 indexed _roundId, uint256 bbtSnapshotId, uint256 dividend);
-    event Withdrew(address indexed _from, uint256 _value);
+    event Deposited(uint256 indexed _gameId, address indexed _from, uint256 indexed _round, uint256 _value);
+    event Distributed(uint256 indexed _gameId, uint256 indexed _roundId, uint256 bbtSnapshotId, uint256 dividend);
+    event Withdrew(uint256 indexed _gameId, address indexed _from, uint256 _value);
 
     constructor(address _bbtAddress) public {
         BBT = BBTxInterface(_bbtAddress);
+        games.push(address(0)); //map gameId 0 to address 0x0
     }
 
     /**
@@ -446,11 +207,92 @@ contract Dividend is Whitelist, Pausable {
         _;
     }
 
+    modifier onlyRegistered(address _gameAddress) {
+        bool ifRegistered = hasRegistered(_gameAddress);
+        require(ifRegistered == true, 'not registered.');
+        _;
+    }
+
+    modifier validGameId(uint256 _gameId) {
+        require(_gameId < games.length, 'invalid gameId.');
+        _;
+    }
+
+    /**
+    * @dev fetch gameId by gameAddress.
+    * @param _gameAddress game contract address.
+    * @return return registered game id, or 0 if not registered.
+    */
+    function getGameId(address _gameAddress) public view returns(uint256) {
+        for (uint256 i = 0; i < games.length; i++) {
+            if (games[i] == _gameAddress)
+                return i;
+        }
+        return 0;
+    }
+
+    /**
+    * @dev get total registered game count.
+    */
+    function getGameCount() public view returns(uint256) {
+        return games.length;
+    }
+
+    /**
+    * @dev register game.
+    * @param _gameAddress game contract address.
+    * @return return registered game id.
+    */
+    function register(address _gameAddress)
+        onlyOwner
+        whenNotPaused
+        public
+        returns(uint256)
+    {
+        bool ifRegistered = hasRegistered(_gameAddress);
+        require(ifRegistered == false, 'already registered.');
+        games.push(_gameAddress);
+        return games.length - 1;
+    }
+
+    /**
+    * @dev unregister game.
+    * @param _gameAddress game contract address.
+    * @return return bool.
+    */
+    function unRegister(address _gameAddress)
+        onlyOwner
+        whenNotPaused
+        onlyRegistered(_gameAddress)
+        public
+        returns(bool)
+    {
+        uint256 gameId = getGameId(_gameAddress);
+        games[gameId] = address(0);
+        return true;
+    }
+
+    /**
+    * @dev check if the given address already register.
+    * @return return true if registered.
+    */
+    function hasRegistered(address _gameAddress) public view returns(bool) {
+        uint256 gameId = getGameId(_gameAddress);
+        if (gameId == 0)
+            return false;
+        return true;
+    }
+
     /**
      * @dev get count of game rounds
      */
-    function getRoundsCount() public view returns(uint256) {
-        return roundIds_.length;
+    function getRoundsCount(uint256 _gameId)
+        validGameId(_gameId)
+        public
+        view
+        returns(uint256)
+    {
+        return roundIds_[_gameId].length;
     }
 
     /**
@@ -459,29 +301,30 @@ contract Dividend is Whitelist, Pausable {
      * @return deposit success.
      */
     function deposit(uint256 _round)
-        onlyIfWhitelisted(msg.sender)
+        onlyRegistered(msg.sender)
         whenNotPaused
         public
         payable
         returns(bool)
     {
+        uint256 gameId = getGameId(msg.sender);
         require(msg.value > 0, "deposit amount should not be empty.");
-        require(_round > 0 && _round >= currentRound_.roundId, "can not deposit dividend for past round.");
+        require(_round > 0 && _round >= currentRound_[gameId].roundId, "can not deposit dividend for past round.");
 
-        if (_round == currentRound_.roundId) {
-            require(currentRound_.isEnded == false, "this round has ended. can not deposit.");
-            currentRound_.dividend = (currentRound_.dividend).add(msg.value);
+        if (_round == currentRound_[gameId].roundId) {
+            require(currentRound_[gameId].isEnded == false, "this round has ended. can not deposit.");
+            currentRound_[gameId].dividend = (currentRound_[gameId].dividend).add(msg.value);
         } else {    // new round
-            if (currentRound_.roundId > 0)  //when first deposit come in, don't check isEnded.
-                require(currentRound_.isEnded == true, "last round not end. can not deposit new round.");
-            currentRound_.roundId = _round;
-            currentRound_.isEnded = false;
-            currentRound_.dividend = msg.value;
+            if (currentRound_[gameId].roundId > 0)  //when first deposit come in, don't check isEnded.
+                require(currentRound_[gameId].isEnded == true, "last round not end. can not deposit new round.");
+            currentRound_[gameId].roundId = _round;
+            currentRound_[gameId].isEnded = false;
+            currentRound_[gameId].dividend = msg.value;
         }
 
-        cumulativeDividend = cumulativeDividend.add(msg.value);
+        cumulativeDividend[gameId] = cumulativeDividend[gameId].add(msg.value);
 
-        emit Deposited(msg.sender, _round, msg.value);
+        emit Deposited(gameId, msg.sender, _round, msg.value);
         return true;
     }
 
@@ -491,94 +334,98 @@ contract Dividend is Whitelist, Pausable {
      * @return distributed success.
      */
     function distribute(uint256 _round)
-        onlyIfWhitelisted(msg.sender)
+        onlyRegistered(msg.sender)
         whenNotPaused
         public
         returns(bool)
     {
-        require(_round > 0 && _round >= currentRound_.roundId, "can not distribute dividend for past round.");
+        uint256 gameId = getGameId(msg.sender);
+        require(_round > 0 && _round >= currentRound_[gameId].roundId, "can not distribute dividend for past round.");
 
-        if (_round == currentRound_.roundId) {
-            require(currentRound_.isEnded == false, "this round has ended. can not distribute again.");
+        if (_round == currentRound_[gameId].roundId) {
+            require(currentRound_[gameId].isEnded == false, "this round has ended. can not distribute again.");
         } else {    //when this round has no deposit
-            currentRound_.roundId = _round;
-            currentRound_.dividend = 0;
+            require(currentRound_[gameId].isEnded == true, "last round not end. can not distribute new round.");
+            currentRound_[gameId].roundId = _round;
+            currentRound_[gameId].dividend = 0;
         }
 
         RoundInfo memory roundInfo;
         roundInfo.bbtSnapshotId = BBT.snapshot();
-        roundInfo.dividend = currentRound_.dividend;
-        roundsInfo_[currentRound_.roundId] = roundInfo;
-        roundIds_.push(currentRound_.roundId);
+        roundInfo.dividend = currentRound_[gameId].dividend;
+        roundsInfo_[gameId][currentRound_[gameId].roundId] = roundInfo;
+        roundIds_[gameId].push(currentRound_[gameId].roundId);
 
-        currentRound_.isEnded = true;   //mark this round is ended
+        currentRound_[gameId].isEnded = true;   //mark this round is ended
 
-        emit Distributed(currentRound_.roundId, roundInfo.bbtSnapshotId, roundInfo.dividend);
+        emit Distributed(gameId, currentRound_[gameId].roundId, roundInfo.bbtSnapshotId, roundInfo.dividend);
         return true;
     }
 
     /**
      * @dev player withdraw dividend out.
      */
-    function withdraw()
+    function withdraw(uint256 _gameId)
+        validGameId(_gameId)
         whenNotPaused
         isHuman
         public
     {
-        uint256 plyLeftDividend = getPlayerLeftDividend(msg.sender);
+        uint256 plyLeftDividend = getPlayerLeftDividend(_gameId, msg.sender);
         if (plyLeftDividend > 0) {
-            msg.sender.transfer(plyLeftDividend);
-            playersWithdrew_[msg.sender] = (playersWithdrew_[msg.sender]).add(plyLeftDividend);
+            (msg.sender).transfer(plyLeftDividend);
+            playersWithdrew_[_gameId][msg.sender] = (playersWithdrew_[_gameId][msg.sender]).add(plyLeftDividend);
         }
-        emit Withdrew(msg.sender, plyLeftDividend);
+        emit Withdrew(_gameId, msg.sender, plyLeftDividend);
     }
 
     /**
      * @dev get player dividend by round id.
      */
-    function getPlayerRoundDividend(address _plyAddr, uint256 _roundId)
+    function getPlayerRoundDividend(uint256 _gameId, address _plyAddr, uint256 _roundId)
+        validGameId(_gameId)
         public
         view
         returns(uint256)
     {
-        require(_roundId > 0 && _roundId <= roundIds_.length, 'invalid round id.');
-
-        RoundInfo storage roundInfo = roundsInfo_[_roundId];
+        RoundInfo storage roundInfo = roundsInfo_[_gameId][_roundId];
         // cause circulation divide token decimal, so the balance should divide too.
         uint256 plyRoundBBT = (BBT.balanceOfAt(_plyAddr, roundInfo.bbtSnapshotId)).div(1e18);
-        return plyRoundBBT.mul(getRoundDividendPerBBTHelper(_roundId));
+        return plyRoundBBT.mul(getRoundDividendPerBBTHelper(_gameId, _roundId));
     }
 
-    function getPlayerTotalDividend(address _plyAddr)
+    function getPlayerTotalDividend(uint256 _gameId, address _plyAddr)
+        validGameId(_gameId)
         public
         view
         returns(uint256)
     {
         uint256 plyTotalDividend;
-        for (uint256 i = 0; i < roundIds_.length; i++) {
-            uint256 roundId = roundIds_[i];
-            plyTotalDividend = plyTotalDividend.add(getPlayerRoundDividend(_plyAddr, roundId));
+        for (uint256 i = 0; i < roundIds_[_gameId].length; i++) {
+            uint256 roundId = roundIds_[_gameId][i];
+            plyTotalDividend = plyTotalDividend.add(getPlayerRoundDividend(_gameId, _plyAddr, roundId));
         }
         return plyTotalDividend;
     }
 
-    function getPlayerLeftDividend(address _plyAddr)
+    function getPlayerLeftDividend(uint256 _gameId, address _plyAddr)
+        validGameId(_gameId)
         public
         view
         returns(uint256)
     {
-        return (getPlayerTotalDividend(_plyAddr)).sub(playersWithdrew_[_plyAddr]);
+        return (getPlayerTotalDividend(_gameId, _plyAddr)).sub(playersWithdrew_[_gameId][_plyAddr]);
     }
 
     /**
      * @dev calculate dividend per BBT by round id.
      */
-    function getRoundDividendPerBBTHelper(uint256 _roundId)
+    function getRoundDividendPerBBTHelper(uint256 _gameId, uint256 _roundId)
         internal
         view
         returns(uint256)
     {
-        RoundInfo storage roundInfo = roundsInfo_[_roundId];
+        RoundInfo storage roundInfo = roundsInfo_[_gameId][_roundId];
 
         if (roundInfo.dividend == 0)
             return 0;
