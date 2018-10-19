@@ -30,6 +30,7 @@ contract Dividend is Whitelist, Pausable {
     mapping (uint256 => RoundInfo) public roundsInfo_;  // roundId => RoundInfo
     uint256[] public roundIds_;
     uint256 public cumulativeDividend;  // cumulative total dividend;
+    address[] public games;    //registered games (gameID => gameContractAddress)
 
     event Deposited(address indexed _from, uint256 indexed _round, uint256 _value);
     event Distributed(uint256 indexed _roundId, uint256 bbtSnapshotId, uint256 dividend);
@@ -37,6 +38,7 @@ contract Dividend is Whitelist, Pausable {
 
     constructor(address _bbtAddress) public {
         BBT = BBTxInterface(_bbtAddress);
+        games.push(address(0)); //map gameId 0 to address 0x0
     }
 
     /**
@@ -49,6 +51,77 @@ contract Dividend is Whitelist, Pausable {
         assembly {_codeLength := extcodesize(_addr)}
         require(_codeLength == 0, "sorry humans only");
         _;
+    }
+
+    modifier onlyRegistered(address _gameAddress) {
+        bool ifRegistered = hasRegistered(_gameAddress);
+        require(ifRegistered == true, 'not registered.');
+        _;
+    }
+
+    /**
+    * @dev fetch gameId by gameAddress.
+    * @param _gameAddress game contract address.
+    * @return return registered game id, or 0 if not registered.
+    */
+    function getGameId(address _gameAddress) public view returns(uint256) {
+        for (uint256 i = 0; i < games.length; i++) {
+            if (games[i] == _gameAddress)
+                return i;
+        }
+        return 0;
+    }
+
+    /**
+    * @dev get total registered game count.
+    */
+    function getGameCount() public view returns(uint256) {
+        return games.length;
+    }
+
+    /**
+    * @dev register game.
+    * @param _gameAddress game contract address.
+    * @return return registered game id.
+    */
+    function register(address _gameAddress)
+        onlyOwner
+        whenNotPaused
+        public
+        returns(uint256)
+    {
+        bool ifRegistered = hasRegistered(_gameAddress);
+        require(ifRegistered == false, 'already registered.');
+        games.push(_gameAddress);
+        return games.length - 1;
+    }
+
+    /**
+    * @dev unregister game.
+    * @param _gameAddress game contract address.
+    * @return return bool.
+    */
+    function unRegister(address _gameAddress)
+        onlyOwner
+        whenNotPaused
+        onlyRegistered(_gameAddress)
+        public
+        returns(bool)
+    {
+        uint256 gameId = getGameId(_gameAddress);
+        games[gameId] = address(0);
+        return true;
+    }
+
+    /**
+    * @dev check if the given address already register.
+    * @return return true if registered.
+    */
+    function hasRegistered(address _gameAddress) public view returns(bool) {
+        uint256 gameId = getGameId(_gameAddress);
+        if (gameId == 0)
+            return false;
+        return true;
     }
 
     /**
