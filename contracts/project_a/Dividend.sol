@@ -40,9 +40,6 @@ contract Dividend is Pausable {
         games.push(address(0)); //map gameId 0 to address 0x0
     }
 
-    /**
-     * @dev prevents contracts from interacting with fomo3d
-     */
     modifier isHuman() {
         address _addr = msg.sender;
         uint256 _codeLength;
