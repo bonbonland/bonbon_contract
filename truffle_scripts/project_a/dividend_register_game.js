@@ -20,22 +20,22 @@ module.exports = function(done) {
   }
 
   let run = async () => {
-    let deployedBBT = await BBT.deployed()
-    //let deployedDividend = await Dividend.deployed()
+    //let deployedBBT = await BBT.deployed()
+    let deployedDividend = await Dividend.deployed()
 
-    let addWhitelist = async (account) => {
-      let inWhiteList = await deployedBBT.whitelist.call(account)
-      if (!inWhiteList) {
-        console.log(account + ' is not in whitelist. now adding it.')
-        await deployedBBT.addAddressToWhitelist(account, {
+    let register = async (account) => {
+      let ifRegistered = await deployedDividend.hasRegistered.call(account)
+      if (!ifRegistered) {
+        console.log(account + ' has not register. now register it.')
+        await deployedDividend.register(account, {
           from: accountB.toLowerCase()
         })
       } else {
-        console.log(account + ' already in whitelist.')
+        console.log(account + ' already registered.')
       }
     }
 
-    await addWhitelist(whitelistAddress)
+    await register(whitelistAddress)
 
     return done()
   }

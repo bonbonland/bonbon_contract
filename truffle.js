@@ -40,7 +40,7 @@ module.exports = {
       gas: 10000000,
       network_id: '*',   // Match any network id
     },
-    dev: {
+    development: {  //default network hard-coded to 'development'
       provider: () =>
         //caution! first arg is array
         new HDWalletProvider(privateKeys, devChainHttpHost),
