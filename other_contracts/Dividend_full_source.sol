@@ -194,7 +194,7 @@ contract Dividend is Pausable {
         BBT = BBTxInterface(_bbtAddress);
         games.push(address(0)); //map gameId 0 to address 0x0
     }
-    
+
     modifier isHuman() {
         address _addr = msg.sender;
         uint256 _codeLength;
