@@ -246,7 +246,7 @@
         ],
         "contractDependencies": [
           85,
-          532
+          599
         ],
         "contractKind": "contract",
         "documentation": null,
@@ -255,7 +255,7 @@
         "linearizedBaseContracts": [
           141,
           85,
-          532
+          599
         ],
         "name": "TestCaller",
         "nodeType": "ContractDefinition",
@@ -651,7 +651,7 @@
                                 "name": "msg",
                                 "nodeType": "Identifier",
                                 "overloadedDeclarations": [],
-                                "referencedDeclaration": 1067,
+                                "referencedDeclaration": 1134,
                                 "src": "483:3:1",
                                 "typeDescriptions": {
                                   "typeIdentifier": "t_magic_message",
@@ -801,10 +801,10 @@
                             "name": "revert",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [
-                              1072,
-                              1073
+                              1139,
+                              1140
                             ],
-                            "referencedDeclaration": 1072,
+                            "referencedDeclaration": 1139,
                             "src": "515:6:1",
                             "typeDescriptions": {
                               "typeIdentifier": "t_function_revert_pure$__$returns$__$",
@@ -957,7 +957,7 @@
         ],
         "contractDependencies": [
           85,
-          532
+          599
         ],
         "contractKind": "contract",
         "documentation": null,
@@ -966,7 +966,7 @@
         "linearizedBaseContracts": [
           141,
           85,
-          532
+          599
         ],
         "name": "TestCaller",
         "nodeType": "ContractDefinition",
@@ -1362,7 +1362,7 @@
                                 "name": "msg",
                                 "nodeType": "Identifier",
                                 "overloadedDeclarations": [],
-                                "referencedDeclaration": 1067,
+                                "referencedDeclaration": 1134,
                                 "src": "483:3:1",
                                 "typeDescriptions": {
                                   "typeIdentifier": "t_magic_message",
@@ -1512,10 +1512,10 @@
                             "name": "revert",
                             "nodeType": "Identifier",
                             "overloadedDeclarations": [
-                              1072,
-                              1073
+                              1139,
+                              1140
                             ],
-                            "referencedDeclaration": 1072,
+                            "referencedDeclaration": 1139,
                             "src": "515:6:1",
                             "typeDescriptions": {
                               "typeIdentifier": "t_function_revert_pure$__$returns$__$",
@@ -1626,5 +1626,5 @@
     }
   },
   "schemaVersion": "2.0.1",
-  "updatedAt": "2018-10-22T07:24:26.997Z"
+  "updatedAt": "2018-10-23T15:13:18.432Z"
 }

@@ -22,7 +22,7 @@ contract('DragonCityCoin', async (accounts) => {
     assert.equal(coinsInVaultBeforeSet, 0)
 
     //set vault
-    await coin.setVault(accountOne, setAmount)
+    await coin.setVault([accountOne], [setAmount])
     let coinsInVaultAfterSet = (await coin.vaults.call(accountOne))[0].toNumber()
     assert.equal(coinsInVaultAfterSet, setAmount)
   })
