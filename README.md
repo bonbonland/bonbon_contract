@@ -1,5 +1,14 @@
 ## ethereum contracts
 
+## 单元测试
+```
+truffle test --network local
+```
+```
+truffle test ./test/dragon_city_coin.js --network local
+
+```
+
 ### 部署BBT和Dividend合约
 ```
 truffle migrate --network development -f 12
