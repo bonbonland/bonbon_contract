@@ -24,7 +24,7 @@ contract DragonCityCoin is PausableToken {
         for (uint256 i; i < _amount.length; i++) {
             totalAmount = totalAmount.add(_amount[i]);
         }
-        require(totalAmount <= totalSupply_, 'initial assigned coins can not exceed total supply.');
+        require(totalAmount.add(coinsInVaults) <= totalSupply_, 'can not exceed total supply.');
         _;
     }
 
@@ -35,7 +35,7 @@ contract DragonCityCoin is PausableToken {
     /**
     * @dev user acquire initial coins to his balance.
     */
-    function acquire() public {
+    function acquire() whenNotPaused public {
         uint256 coinAmount = vaults[msg.sender].amount;
         require(coinAmount > 0, 'no coins to acquire.');
 
@@ -52,6 +52,7 @@ contract DragonCityCoin is PausableToken {
     function setVault(address[] _to, uint256[] _amount)
         onlyOwner
         lessThanTotalSupply(_amount)
+        whenNotPaused
         public
     {
         require(_to.length == _amount.length, 'address count and amount count do not match.');
@@ -59,6 +60,7 @@ contract DragonCityCoin is PausableToken {
         for (uint256 i; i < _to.length; i++) {
             address to = _to[i];
             uint256 amount = _amount[i];
+            require(amount > 0, 'amount should great than 0.');
 
             VaultInfo storage vaultInfo = vaults[to];
             vaultInfo.amount = (vaultInfo.amount).add(amount);
