@@ -462,7 +462,7 @@ contract DragonCityCoin is PausableToken {
     /**
     * @dev initialize coins to land holder.
     */
-    function setVault(address[] _to, uint256[] _amount)
+    function setVault(address[] memory _to, uint256[] memory _amount)
         onlyOwner
         lessThanTotalSupply(_amount)
         whenNotPaused
