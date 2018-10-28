@@ -1,0 +1,1630 @@
+{
+  "contractName": "TestCaller",
+  "abi": [
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "_gameName",
+          "type": "bytes32"
+        }
+      ],
+      "name": "getShareAccount",
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_toAddress",
+          "type": "address"
+        },
+        {
+          "name": "_toAmount",
+          "type": "uint256"
+        }
+      ],
+      "name": "transferTo",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "gameName",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [],
+      "name": "renounceOwnership",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_gameName",
+          "type": "bytes32"
+        },
+        {
+          "name": "_accountAddress",
+          "type": "address"
+        }
+      ],
+      "name": "setShareAccount",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "name": "shareAccountAddress",
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "transferOwnership",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "name": "_gameName",
+          "type": "bytes32"
+        },
+        {
+          "name": "_bbtShareAccount",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "payable": true,
+      "stateMutability": "payable",
+      "type": "fallback"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "name": "previousOwner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnershipRenounced",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "name": "previousOwner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnershipTransferred",
+      "type": "event"
+    },
+    {
+      "constant": false,
+      "inputs": [],
+      "name": "store",
+      "outputs": [],
+      "payable": true,
+      "stateMutability": "payable",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x608060405234801561001057600080fd5b5060405160408061051d83398101604052805160209091015160008054600160a060020a031916331790556002829055610057828264010000000061033261005e82021704565b50506100a3565b600054600160a060020a0316331461007557600080fd5b6000918252600160205260409091208054600160a060020a031916600160a060020a03909216919091179055565b61046b806100b26000396000f3006080604052600436106100985763ffffffff7c010000000000000000000000000000000000000000000000000000000060003504166317824af5811461009a5780632ccb1b30146100ce578063473bc223146100f2578063715018a6146101195780638da5cb5b1461012e578063975057e714610143578063b22ac50d1461014b578063e7ec51ef1461016f578063f2fde38b14610187575b005b3480156100a657600080fd5b506100b26004356101a8565b60408051600160a060020a039092168252519081900360200190f35b3480156100da57600080fd5b50610098600160a060020a03600435166024356101ea565b3480156100fe57600080fd5b5061010761024a565b60408051918252519081900360200190f35b34801561012557600080fd5b50610098610250565b34801561013a57600080fd5b506100b26102bc565b6100986102cb565b34801561015757600080fd5b50610098600435600160a060020a0360243516610332565b34801561017b57600080fd5b506100b2600435610384565b34801561019357600080fd5b50610098600160a060020a036004351661039f565b6000818152600160205260408120548290600160a060020a031615156101cd57600080fd5b5050600090815260016020526040902054600160a060020a031690565b600054600160a060020a0316331461020157600080fd5b303181111561020f57600080fd5b604051600160a060020a0383169082156108fc029083906000818181858888f19350505050158015610245573d6000803e3d6000fd5b505050565b60025481565b600054600160a060020a0316331461026757600080fd5b60008054604051600160a060020a03909116917ff8df31144d9c2f0f6b59d69b8b98abd5459d07f2742c4df920b25aae33c6482091a26000805473ffffffffffffffffffffffffffffffffffffffff19169055565b600054600160a060020a031681565b600254600081815260016020526040812054909190600160a060020a031615156102f457600080fd5b6102ff6002546101a8565b9150600160a060020a0382166002340460405160006040518083038185875af192505050151561032e57600080fd5b5050565b600054600160a060020a0316331461034957600080fd5b600091825260016020526040909120805473ffffffffffffffffffffffffffffffffffffffff1916600160a060020a03909216919091179055565b600160205260009081526040902054600160a060020a031681565b600054600160a060020a031633146103b657600080fd5b6103bf816103c2565b50565b600160a060020a03811615156103d757600080fd5b60008054604051600160a060020a03808516939216917f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e091a36000805473ffffffffffffffffffffffffffffffffffffffff1916600160a060020a03929092169190911790555600a165627a7a723058208cdaed989432b219e22935cafca14f3b88bf2a1da4d0c798b2b75846c47aba190029",
+  "deployedBytecode": "0x6080604052600436106100985763ffffffff7c010000000000000000000000000000000000000000000000000000000060003504166317824af5811461009a5780632ccb1b30146100ce578063473bc223146100f2578063715018a6146101195780638da5cb5b1461012e578063975057e714610143578063b22ac50d1461014b578063e7ec51ef1461016f578063f2fde38b14610187575b005b3480156100a657600080fd5b506100b26004356101a8565b60408051600160a060020a039092168252519081900360200190f35b3480156100da57600080fd5b50610098600160a060020a03600435166024356101ea565b3480156100fe57600080fd5b5061010761024a565b60408051918252519081900360200190f35b34801561012557600080fd5b50610098610250565b34801561013a57600080fd5b506100b26102bc565b6100986102cb565b34801561015757600080fd5b50610098600435600160a060020a0360243516610332565b34801561017b57600080fd5b506100b2600435610384565b34801561019357600080fd5b50610098600160a060020a036004351661039f565b6000818152600160205260408120548290600160a060020a031615156101cd57600080fd5b5050600090815260016020526040902054600160a060020a031690565b600054600160a060020a0316331461020157600080fd5b303181111561020f57600080fd5b604051600160a060020a0383169082156108fc029083906000818181858888f19350505050158015610245573d6000803e3d6000fd5b505050565b60025481565b600054600160a060020a0316331461026757600080fd5b60008054604051600160a060020a03909116917ff8df31144d9c2f0f6b59d69b8b98abd5459d07f2742c4df920b25aae33c6482091a26000805473ffffffffffffffffffffffffffffffffffffffff19169055565b600054600160a060020a031681565b600254600081815260016020526040812054909190600160a060020a031615156102f457600080fd5b6102ff6002546101a8565b9150600160a060020a0382166002340460405160006040518083038185875af192505050151561032e57600080fd5b5050565b600054600160a060020a0316331461034957600080fd5b600091825260016020526040909120805473ffffffffffffffffffffffffffffffffffffffff1916600160a060020a03909216919091179055565b600160205260009081526040902054600160a060020a031681565b600054600160a060020a031633146103b657600080fd5b6103bf816103c2565b50565b600160a060020a03811615156103d757600080fd5b60008054604051600160a060020a03808516939216917f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e091a36000805473ffffffffffffffffffffffffffffffffffffffff1916600160a060020a03929092169190911790555600a165627a7a723058208cdaed989432b219e22935cafca14f3b88bf2a1da4d0c798b2b75846c47aba190029",
+  "sourceMap": "57:485:1:-;;;130:168;8:9:-1;5:2;;;30:1;27;20:12;5:2;130:168:1;;;;;;;;;;;;;;;;;;;567:5:5;:18;;-1:-1:-1;;;;;;567:18:5;575:10;567:18;;;204:8:1;:20;;;234:57;130:168;;234:29;;;;;;:57;:::i;:::-;130:168;;57:485;;371:171:0;719:5:5;;-1:-1:-1;;;;;719:5:5;705:10;:19;697:28;;;;;;487:30:0;;;;:19;:30;;;;;;:48;;-1:-1:-1;;;;;;487:48:0;-1:-1:-1;;;;;487:48:0;;;;;;;;;371:171::o;57:485:1:-;;;;;;;",
+  "deployedSourceMap": "57:485:1:-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;548:193:0;;8:9:-1;5:2;;;30:1;27;20:12;5:2;-1:-1;548:193:0;;;;;;;;;-1:-1:-1;;;;;548:193:0;;;;;;;;;;;;;;747:176;;8:9:-1;5:2;;;30:1;27;20:12;5:2;-1:-1;747:176:0;-1:-1:-1;;;;;747:176:0;;;;;;;100:23:1;;8:9:-1;5:2;;;30:1;27;20:12;5:2;100:23:1;;;;;;;;;;;;;;;;;;;;1001:111:5;;8:9:-1;5:2;;;30:1;27;20:12;5:2;1001:111:5;;;;238:20;;8:9:-1;5:2;;;30:1;27;20:12;5:2;238:20:5;;;;304:236:1;;;;371:171:0;;8:9:-1;5:2;;;30:1;27;20:12;5:2;-1:-1;371:171:0;;;-1:-1:-1;;;;;371:171:0;;;;;131:55;;8:9:-1;5:2;;;30:1;27;20:12;5:2;-1:-1;131:55:0;;;;;1274:103:5;;8:9:-1;5:2;;;30:1;27;20:12;5:2;-1:-1;1274:103:5;-1:-1:-1;;;;;1274:103:5;;;;;548:193:0;674:7;302:30;;;:19;:30;;;;;;619:9;;-1:-1:-1;;;;;302:30:0;:44;;294:53;;;;;;-1:-1:-1;;704:30:0;;;;:19;:30;;;;;;-1:-1:-1;;;;;704:30:0;;548:193::o;747:176::-;719:5:5;;-1:-1:-1;;;;;719:5:5;705:10;:19;697:28;;;;;;862:4:0;854:21;841:34;;;833:43;;;;;;886:30;;-1:-1:-1;;;;;886:19:0;;;:30;;;;;906:9;;886:30;;;;906:9;886:19;:30;;;;;;;;8:9:-1;5:2;;;45:16;42:1;39;24:38;77:16;74:1;67:27;5:2;886:30:0;747:176;;:::o;100:23:1:-;;;;:::o;1001:111:5:-;719:5;;-1:-1:-1;;;;;719:5:5;705:10;:19;697:28;;;;;;1077:5;;;1058:25;;-1:-1:-1;;;;;1077:5:5;;;;1058:25;;;1105:1;1089:18;;-1:-1:-1;;1089:18:5;;;1001:111::o;238:20::-;;;-1:-1:-1;;;;;238:20:5;;:::o;304:236:1:-;340:8;;375:23;302:30:0;;;:19;:30;;;;;;375:23:1;;340:8;-1:-1:-1;;;;;302:30:0;:44;;294:53;;;;;;401:39:1;431:8;;401:29;:39::i;:::-;375:65;-1:-1:-1;;;;;;456:20:1;;495:1;483:9;:13;456:43;;;;;;;;;;;;;;;;;454:45;450:84;;;515:8;;;450:84;304:236;;:::o;371:171:0:-;719:5:5;;-1:-1:-1;;;;;719:5:5;705:10;:19;697:28;;;;;;487:30:0;;;;:19;:30;;;;;;:48;;-1:-1:-1;;487:48:0;-1:-1:-1;;;;;487:48:0;;;;;;;;;371:171::o;131:55::-;;;;;;;;;;;;-1:-1:-1;;;;;131:55:0;;:::o;1274:103:5:-;719:5;;-1:-1:-1;;;;;719:5:5;705:10;:19;697:28;;;;;;1343:29;1362:9;1343:18;:29::i;:::-;1274:103;:::o;1512:171::-;-1:-1:-1;;;;;1582:23:5;;;;1574:32;;;;;;1638:5;;;1617:38;;-1:-1:-1;;;;;1617:38:5;;;;1638:5;;;1617:38;;;1661:5;:17;;-1:-1:-1;;1661:17:5;-1:-1:-1;;;;;1661:17:5;;;;;;;;;;1512:171::o",
+  "source": "pragma solidity ^0.4.24;\n\nimport './BonBonStorage.sol';\n\ncontract TestCaller is BonBonStorage {\n    bytes32 public gameName;\n\n    constructor(bytes32 _gameName, address _bbtShareAccount) public {\n        gameName = _gameName;\n        BonBonStorage.setShareAccount(gameName, _bbtShareAccount);\n    }\n\n    function store() shareAccountExists(gameName) public payable {\n        address bbtShareAccount = BonBonStorage.getShareAccount(gameName);\n        if (! bbtShareAccount.call.value(msg.value / 2)()) {\n            revert();\n        }\n    }\n}",
+  "sourcePath": "/Volumes/Code/data/www/bonbon_contract/contracts/bonbon_storage/TestCaller.sol",
+  "ast": {
+    "absolutePath": "/Volumes/Code/data/www/bonbon_contract/contracts/bonbon_storage/TestCaller.sol",
+    "exportedSymbols": {
+      "TestCaller": [
+        141
+      ]
+    },
+    "id": 142,
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 87,
+        "literals": [
+          "solidity",
+          "^",
+          "0.4",
+          ".24"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "0:24:1"
+      },
+      {
+        "absolutePath": "/Volumes/Code/data/www/bonbon_contract/contracts/bonbon_storage/BonBonStorage.sol",
+        "file": "./BonBonStorage.sol",
+        "id": 88,
+        "nodeType": "ImportDirective",
+        "scope": 142,
+        "sourceUnit": 86,
+        "src": "26:29:1",
+        "symbolAliases": [],
+        "unitAlias": ""
+      },
+      {
+        "baseContracts": [
+          {
+            "arguments": null,
+            "baseName": {
+              "contractScope": null,
+              "id": 89,
+              "name": "BonBonStorage",
+              "nodeType": "UserDefinedTypeName",
+              "referencedDeclaration": 85,
+              "src": "80:13:1",
+              "typeDescriptions": {
+                "typeIdentifier": "t_contract$_BonBonStorage_$85",
+                "typeString": "contract BonBonStorage"
+              }
+            },
+            "id": 90,
+            "nodeType": "InheritanceSpecifier",
+            "src": "80:13:1"
+          }
+        ],
+        "contractDependencies": [
+          85,
+          599
+        ],
+        "contractKind": "contract",
+        "documentation": null,
+        "fullyImplemented": true,
+        "id": 141,
+        "linearizedBaseContracts": [
+          141,
+          85,
+          599
+        ],
+        "name": "TestCaller",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "constant": false,
+            "id": 92,
+            "name": "gameName",
+            "nodeType": "VariableDeclaration",
+            "scope": 141,
+            "src": "100:23:1",
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_bytes32",
+              "typeString": "bytes32"
+            },
+            "typeName": {
+              "id": 91,
+              "name": "bytes32",
+              "nodeType": "ElementaryTypeName",
+              "src": "100:7:1",
+              "typeDescriptions": {
+                "typeIdentifier": "t_bytes32",
+                "typeString": "bytes32"
+              }
+            },
+            "value": null,
+            "visibility": "public"
+          },
+          {
+            "body": {
+              "id": 110,
+              "nodeType": "Block",
+              "src": "194:104:1",
+              "statements": [
+                {
+                  "expression": {
+                    "argumentTypes": null,
+                    "id": 101,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "leftHandSide": {
+                      "argumentTypes": null,
+                      "id": 99,
+                      "name": "gameName",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 92,
+                      "src": "204:8:1",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_bytes32",
+                        "typeString": "bytes32"
+                      }
+                    },
+                    "nodeType": "Assignment",
+                    "operator": "=",
+                    "rightHandSide": {
+                      "argumentTypes": null,
+                      "id": 100,
+                      "name": "_gameName",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 94,
+                      "src": "215:9:1",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_bytes32",
+                        "typeString": "bytes32"
+                      }
+                    },
+                    "src": "204:20:1",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "id": 102,
+                  "nodeType": "ExpressionStatement",
+                  "src": "204:20:1"
+                },
+                {
+                  "expression": {
+                    "argumentTypes": null,
+                    "arguments": [
+                      {
+                        "argumentTypes": null,
+                        "id": 106,
+                        "name": "gameName",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 92,
+                        "src": "264:8:1",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_bytes32",
+                          "typeString": "bytes32"
+                        }
+                      },
+                      {
+                        "argumentTypes": null,
+                        "id": 107,
+                        "name": "_bbtShareAccount",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 96,
+                        "src": "274:16:1",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        }
+                      }
+                    ],
+                    "expression": {
+                      "argumentTypes": [
+                        {
+                          "typeIdentifier": "t_bytes32",
+                          "typeString": "bytes32"
+                        },
+                        {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        }
+                      ],
+                      "expression": {
+                        "argumentTypes": null,
+                        "id": 103,
+                        "name": "BonBonStorage",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 85,
+                        "src": "234:13:1",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_type$_t_contract$_BonBonStorage_$85_$",
+                          "typeString": "type(contract BonBonStorage)"
+                        }
+                      },
+                      "id": 105,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": false,
+                      "lValueRequested": false,
+                      "memberName": "setShareAccount",
+                      "nodeType": "MemberAccess",
+                      "referencedDeclaration": 40,
+                      "src": "234:29:1",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_function_internal_nonpayable$_t_bytes32_$_t_address_$returns$__$",
+                        "typeString": "function (bytes32,address)"
+                      }
+                    },
+                    "id": 108,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "kind": "functionCall",
+                    "lValueRequested": false,
+                    "names": [],
+                    "nodeType": "FunctionCall",
+                    "src": "234:57:1",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_tuple$__$",
+                      "typeString": "tuple()"
+                    }
+                  },
+                  "id": 109,
+                  "nodeType": "ExpressionStatement",
+                  "src": "234:57:1"
+                }
+              ]
+            },
+            "documentation": null,
+            "id": 111,
+            "implemented": true,
+            "isConstructor": true,
+            "isDeclaredConst": false,
+            "modifiers": [],
+            "name": "",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 97,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 94,
+                  "name": "_gameName",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 111,
+                  "src": "142:17:1",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  },
+                  "typeName": {
+                    "id": 93,
+                    "name": "bytes32",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "142:7:1",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 96,
+                  "name": "_bbtShareAccount",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 111,
+                  "src": "161:24:1",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 95,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "161:7:1",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "141:45:1"
+            },
+            "payable": false,
+            "returnParameters": {
+              "id": 98,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "194:0:1"
+            },
+            "scope": 141,
+            "src": "130:168:1",
+            "stateMutability": "nonpayable",
+            "superFunction": null,
+            "visibility": "public"
+          },
+          {
+            "body": {
+              "id": 139,
+              "nodeType": "Block",
+              "src": "365:175:1",
+              "statements": [
+                {
+                  "assignments": [
+                    118
+                  ],
+                  "declarations": [
+                    {
+                      "constant": false,
+                      "id": 118,
+                      "name": "bbtShareAccount",
+                      "nodeType": "VariableDeclaration",
+                      "scope": 140,
+                      "src": "375:23:1",
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_address",
+                        "typeString": "address"
+                      },
+                      "typeName": {
+                        "id": 117,
+                        "name": "address",
+                        "nodeType": "ElementaryTypeName",
+                        "src": "375:7:1",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        }
+                      },
+                      "value": null,
+                      "visibility": "internal"
+                    }
+                  ],
+                  "id": 123,
+                  "initialValue": {
+                    "argumentTypes": null,
+                    "arguments": [
+                      {
+                        "argumentTypes": null,
+                        "id": 121,
+                        "name": "gameName",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 92,
+                        "src": "431:8:1",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_bytes32",
+                          "typeString": "bytes32"
+                        }
+                      }
+                    ],
+                    "expression": {
+                      "argumentTypes": [
+                        {
+                          "typeIdentifier": "t_bytes32",
+                          "typeString": "bytes32"
+                        }
+                      ],
+                      "expression": {
+                        "argumentTypes": null,
+                        "id": 119,
+                        "name": "BonBonStorage",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 85,
+                        "src": "401:13:1",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_type$_t_contract$_BonBonStorage_$85_$",
+                          "typeString": "type(contract BonBonStorage)"
+                        }
+                      },
+                      "id": 120,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": false,
+                      "lValueRequested": false,
+                      "memberName": "getShareAccount",
+                      "nodeType": "MemberAccess",
+                      "referencedDeclaration": 55,
+                      "src": "401:29:1",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_function_internal_view$_t_bytes32_$returns$_t_address_$",
+                        "typeString": "function (bytes32) view returns (address)"
+                      }
+                    },
+                    "id": 122,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "kind": "functionCall",
+                    "lValueRequested": false,
+                    "names": [],
+                    "nodeType": "FunctionCall",
+                    "src": "401:39:1",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "nodeType": "VariableDeclarationStatement",
+                  "src": "375:65:1"
+                },
+                {
+                  "condition": {
+                    "argumentTypes": null,
+                    "id": 133,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "nodeType": "UnaryOperation",
+                    "operator": "!",
+                    "prefix": true,
+                    "src": "454:45:1",
+                    "subExpression": {
+                      "argumentTypes": null,
+                      "arguments": [],
+                      "expression": {
+                        "argumentTypes": [],
+                        "arguments": [
+                          {
+                            "argumentTypes": null,
+                            "commonType": {
+                              "typeIdentifier": "t_uint256",
+                              "typeString": "uint256"
+                            },
+                            "id": 130,
+                            "isConstant": false,
+                            "isLValue": false,
+                            "isPure": false,
+                            "lValueRequested": false,
+                            "leftExpression": {
+                              "argumentTypes": null,
+                              "expression": {
+                                "argumentTypes": null,
+                                "id": 127,
+                                "name": "msg",
+                                "nodeType": "Identifier",
+                                "overloadedDeclarations": [],
+                                "referencedDeclaration": 1134,
+                                "src": "483:3:1",
+                                "typeDescriptions": {
+                                  "typeIdentifier": "t_magic_message",
+                                  "typeString": "msg"
+                                }
+                              },
+                              "id": 128,
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": false,
+                              "lValueRequested": false,
+                              "memberName": "value",
+                              "nodeType": "MemberAccess",
+                              "referencedDeclaration": null,
+                              "src": "483:9:1",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_uint256",
+                                "typeString": "uint256"
+                              }
+                            },
+                            "nodeType": "BinaryOperation",
+                            "operator": "/",
+                            "rightExpression": {
+                              "argumentTypes": null,
+                              "hexValue": "32",
+                              "id": 129,
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": true,
+                              "kind": "number",
+                              "lValueRequested": false,
+                              "nodeType": "Literal",
+                              "src": "495:1:1",
+                              "subdenomination": null,
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_rational_2_by_1",
+                                "typeString": "int_const 2"
+                              },
+                              "value": "2"
+                            },
+                            "src": "483:13:1",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_uint256",
+                              "typeString": "uint256"
+                            }
+                          }
+                        ],
+                        "expression": {
+                          "argumentTypes": [
+                            {
+                              "typeIdentifier": "t_uint256",
+                              "typeString": "uint256"
+                            }
+                          ],
+                          "expression": {
+                            "argumentTypes": null,
+                            "expression": {
+                              "argumentTypes": null,
+                              "id": 124,
+                              "name": "bbtShareAccount",
+                              "nodeType": "Identifier",
+                              "overloadedDeclarations": [],
+                              "referencedDeclaration": 118,
+                              "src": "456:15:1",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_address",
+                                "typeString": "address"
+                              }
+                            },
+                            "id": 125,
+                            "isConstant": false,
+                            "isLValue": false,
+                            "isPure": false,
+                            "lValueRequested": false,
+                            "memberName": "call",
+                            "nodeType": "MemberAccess",
+                            "referencedDeclaration": null,
+                            "src": "456:20:1",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_function_barecall_payable$__$returns$_t_bool_$",
+                              "typeString": "function () payable returns (bool)"
+                            }
+                          },
+                          "id": 126,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "lValueRequested": false,
+                          "memberName": "value",
+                          "nodeType": "MemberAccess",
+                          "referencedDeclaration": null,
+                          "src": "456:26:1",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_function_setvalue_nonpayable$_t_uint256_$returns$_t_function_barecall_payable$__$returns$_t_bool_$value_$",
+                            "typeString": "function (uint256) returns (function () payable returns (bool))"
+                          }
+                        },
+                        "id": 131,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": false,
+                        "kind": "functionCall",
+                        "lValueRequested": false,
+                        "names": [],
+                        "nodeType": "FunctionCall",
+                        "src": "456:41:1",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_function_barecall_payable$__$returns$_t_bool_$value",
+                          "typeString": "function () payable returns (bool)"
+                        }
+                      },
+                      "id": 132,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": false,
+                      "kind": "functionCall",
+                      "lValueRequested": false,
+                      "names": [],
+                      "nodeType": "FunctionCall",
+                      "src": "456:43:1",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_bool",
+                        "typeString": "bool"
+                      }
+                    },
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "falseBody": null,
+                  "id": 138,
+                  "nodeType": "IfStatement",
+                  "src": "450:84:1",
+                  "trueBody": {
+                    "id": 137,
+                    "nodeType": "Block",
+                    "src": "501:33:1",
+                    "statements": [
+                      {
+                        "expression": {
+                          "argumentTypes": null,
+                          "arguments": [],
+                          "expression": {
+                            "argumentTypes": [],
+                            "id": 134,
+                            "name": "revert",
+                            "nodeType": "Identifier",
+                            "overloadedDeclarations": [
+                              1139,
+                              1140
+                            ],
+                            "referencedDeclaration": 1139,
+                            "src": "515:6:1",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_function_revert_pure$__$returns$__$",
+                              "typeString": "function () pure"
+                            }
+                          },
+                          "id": 135,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "kind": "functionCall",
+                          "lValueRequested": false,
+                          "names": [],
+                          "nodeType": "FunctionCall",
+                          "src": "515:8:1",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_tuple$__$",
+                            "typeString": "tuple()"
+                          }
+                        },
+                        "id": 136,
+                        "nodeType": "ExpressionStatement",
+                        "src": "515:8:1"
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            "documentation": null,
+            "id": 140,
+            "implemented": true,
+            "isConstructor": false,
+            "isDeclaredConst": false,
+            "modifiers": [
+              {
+                "arguments": [
+                  {
+                    "argumentTypes": null,
+                    "id": 114,
+                    "name": "gameName",
+                    "nodeType": "Identifier",
+                    "overloadedDeclarations": [],
+                    "referencedDeclaration": 92,
+                    "src": "340:8:1",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  }
+                ],
+                "id": 115,
+                "modifierName": {
+                  "argumentTypes": null,
+                  "id": 113,
+                  "name": "shareAccountExists",
+                  "nodeType": "Identifier",
+                  "overloadedDeclarations": [],
+                  "referencedDeclaration": 24,
+                  "src": "321:18:1",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_modifier$_t_bytes32_$",
+                    "typeString": "modifier (bytes32)"
+                  }
+                },
+                "nodeType": "ModifierInvocation",
+                "src": "321:28:1"
+              }
+            ],
+            "name": "store",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 112,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "318:2:1"
+            },
+            "payable": true,
+            "returnParameters": {
+              "id": 116,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "365:0:1"
+            },
+            "scope": 141,
+            "src": "304:236:1",
+            "stateMutability": "payable",
+            "superFunction": null,
+            "visibility": "public"
+          }
+        ],
+        "scope": 142,
+        "src": "57:485:1"
+      }
+    ],
+    "src": "0:542:1"
+  },
+  "legacyAST": {
+    "absolutePath": "/Volumes/Code/data/www/bonbon_contract/contracts/bonbon_storage/TestCaller.sol",
+    "exportedSymbols": {
+      "TestCaller": [
+        141
+      ]
+    },
+    "id": 142,
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 87,
+        "literals": [
+          "solidity",
+          "^",
+          "0.4",
+          ".24"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "0:24:1"
+      },
+      {
+        "absolutePath": "/Volumes/Code/data/www/bonbon_contract/contracts/bonbon_storage/BonBonStorage.sol",
+        "file": "./BonBonStorage.sol",
+        "id": 88,
+        "nodeType": "ImportDirective",
+        "scope": 142,
+        "sourceUnit": 86,
+        "src": "26:29:1",
+        "symbolAliases": [],
+        "unitAlias": ""
+      },
+      {
+        "baseContracts": [
+          {
+            "arguments": null,
+            "baseName": {
+              "contractScope": null,
+              "id": 89,
+              "name": "BonBonStorage",
+              "nodeType": "UserDefinedTypeName",
+              "referencedDeclaration": 85,
+              "src": "80:13:1",
+              "typeDescriptions": {
+                "typeIdentifier": "t_contract$_BonBonStorage_$85",
+                "typeString": "contract BonBonStorage"
+              }
+            },
+            "id": 90,
+            "nodeType": "InheritanceSpecifier",
+            "src": "80:13:1"
+          }
+        ],
+        "contractDependencies": [
+          85,
+          599
+        ],
+        "contractKind": "contract",
+        "documentation": null,
+        "fullyImplemented": true,
+        "id": 141,
+        "linearizedBaseContracts": [
+          141,
+          85,
+          599
+        ],
+        "name": "TestCaller",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "constant": false,
+            "id": 92,
+            "name": "gameName",
+            "nodeType": "VariableDeclaration",
+            "scope": 141,
+            "src": "100:23:1",
+            "stateVariable": true,
+            "storageLocation": "default",
+            "typeDescriptions": {
+              "typeIdentifier": "t_bytes32",
+              "typeString": "bytes32"
+            },
+            "typeName": {
+              "id": 91,
+              "name": "bytes32",
+              "nodeType": "ElementaryTypeName",
+              "src": "100:7:1",
+              "typeDescriptions": {
+                "typeIdentifier": "t_bytes32",
+                "typeString": "bytes32"
+              }
+            },
+            "value": null,
+            "visibility": "public"
+          },
+          {
+            "body": {
+              "id": 110,
+              "nodeType": "Block",
+              "src": "194:104:1",
+              "statements": [
+                {
+                  "expression": {
+                    "argumentTypes": null,
+                    "id": 101,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "leftHandSide": {
+                      "argumentTypes": null,
+                      "id": 99,
+                      "name": "gameName",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 92,
+                      "src": "204:8:1",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_bytes32",
+                        "typeString": "bytes32"
+                      }
+                    },
+                    "nodeType": "Assignment",
+                    "operator": "=",
+                    "rightHandSide": {
+                      "argumentTypes": null,
+                      "id": 100,
+                      "name": "_gameName",
+                      "nodeType": "Identifier",
+                      "overloadedDeclarations": [],
+                      "referencedDeclaration": 94,
+                      "src": "215:9:1",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_bytes32",
+                        "typeString": "bytes32"
+                      }
+                    },
+                    "src": "204:20:1",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "id": 102,
+                  "nodeType": "ExpressionStatement",
+                  "src": "204:20:1"
+                },
+                {
+                  "expression": {
+                    "argumentTypes": null,
+                    "arguments": [
+                      {
+                        "argumentTypes": null,
+                        "id": 106,
+                        "name": "gameName",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 92,
+                        "src": "264:8:1",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_bytes32",
+                          "typeString": "bytes32"
+                        }
+                      },
+                      {
+                        "argumentTypes": null,
+                        "id": 107,
+                        "name": "_bbtShareAccount",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 96,
+                        "src": "274:16:1",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        }
+                      }
+                    ],
+                    "expression": {
+                      "argumentTypes": [
+                        {
+                          "typeIdentifier": "t_bytes32",
+                          "typeString": "bytes32"
+                        },
+                        {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        }
+                      ],
+                      "expression": {
+                        "argumentTypes": null,
+                        "id": 103,
+                        "name": "BonBonStorage",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 85,
+                        "src": "234:13:1",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_type$_t_contract$_BonBonStorage_$85_$",
+                          "typeString": "type(contract BonBonStorage)"
+                        }
+                      },
+                      "id": 105,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": false,
+                      "lValueRequested": false,
+                      "memberName": "setShareAccount",
+                      "nodeType": "MemberAccess",
+                      "referencedDeclaration": 40,
+                      "src": "234:29:1",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_function_internal_nonpayable$_t_bytes32_$_t_address_$returns$__$",
+                        "typeString": "function (bytes32,address)"
+                      }
+                    },
+                    "id": 108,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "kind": "functionCall",
+                    "lValueRequested": false,
+                    "names": [],
+                    "nodeType": "FunctionCall",
+                    "src": "234:57:1",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_tuple$__$",
+                      "typeString": "tuple()"
+                    }
+                  },
+                  "id": 109,
+                  "nodeType": "ExpressionStatement",
+                  "src": "234:57:1"
+                }
+              ]
+            },
+            "documentation": null,
+            "id": 111,
+            "implemented": true,
+            "isConstructor": true,
+            "isDeclaredConst": false,
+            "modifiers": [],
+            "name": "",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 97,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 94,
+                  "name": "_gameName",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 111,
+                  "src": "142:17:1",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bytes32",
+                    "typeString": "bytes32"
+                  },
+                  "typeName": {
+                    "id": 93,
+                    "name": "bytes32",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "142:7:1",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 96,
+                  "name": "_bbtShareAccount",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 111,
+                  "src": "161:24:1",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 95,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "161:7:1",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "value": null,
+                  "visibility": "internal"
+                }
+              ],
+              "src": "141:45:1"
+            },
+            "payable": false,
+            "returnParameters": {
+              "id": 98,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "194:0:1"
+            },
+            "scope": 141,
+            "src": "130:168:1",
+            "stateMutability": "nonpayable",
+            "superFunction": null,
+            "visibility": "public"
+          },
+          {
+            "body": {
+              "id": 139,
+              "nodeType": "Block",
+              "src": "365:175:1",
+              "statements": [
+                {
+                  "assignments": [
+                    118
+                  ],
+                  "declarations": [
+                    {
+                      "constant": false,
+                      "id": 118,
+                      "name": "bbtShareAccount",
+                      "nodeType": "VariableDeclaration",
+                      "scope": 140,
+                      "src": "375:23:1",
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_address",
+                        "typeString": "address"
+                      },
+                      "typeName": {
+                        "id": 117,
+                        "name": "address",
+                        "nodeType": "ElementaryTypeName",
+                        "src": "375:7:1",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_address",
+                          "typeString": "address"
+                        }
+                      },
+                      "value": null,
+                      "visibility": "internal"
+                    }
+                  ],
+                  "id": 123,
+                  "initialValue": {
+                    "argumentTypes": null,
+                    "arguments": [
+                      {
+                        "argumentTypes": null,
+                        "id": 121,
+                        "name": "gameName",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 92,
+                        "src": "431:8:1",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_bytes32",
+                          "typeString": "bytes32"
+                        }
+                      }
+                    ],
+                    "expression": {
+                      "argumentTypes": [
+                        {
+                          "typeIdentifier": "t_bytes32",
+                          "typeString": "bytes32"
+                        }
+                      ],
+                      "expression": {
+                        "argumentTypes": null,
+                        "id": 119,
+                        "name": "BonBonStorage",
+                        "nodeType": "Identifier",
+                        "overloadedDeclarations": [],
+                        "referencedDeclaration": 85,
+                        "src": "401:13:1",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_type$_t_contract$_BonBonStorage_$85_$",
+                          "typeString": "type(contract BonBonStorage)"
+                        }
+                      },
+                      "id": 120,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": false,
+                      "lValueRequested": false,
+                      "memberName": "getShareAccount",
+                      "nodeType": "MemberAccess",
+                      "referencedDeclaration": 55,
+                      "src": "401:29:1",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_function_internal_view$_t_bytes32_$returns$_t_address_$",
+                        "typeString": "function (bytes32) view returns (address)"
+                      }
+                    },
+                    "id": 122,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "kind": "functionCall",
+                    "lValueRequested": false,
+                    "names": [],
+                    "nodeType": "FunctionCall",
+                    "src": "401:39:1",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "nodeType": "VariableDeclarationStatement",
+                  "src": "375:65:1"
+                },
+                {
+                  "condition": {
+                    "argumentTypes": null,
+                    "id": 133,
+                    "isConstant": false,
+                    "isLValue": false,
+                    "isPure": false,
+                    "lValueRequested": false,
+                    "nodeType": "UnaryOperation",
+                    "operator": "!",
+                    "prefix": true,
+                    "src": "454:45:1",
+                    "subExpression": {
+                      "argumentTypes": null,
+                      "arguments": [],
+                      "expression": {
+                        "argumentTypes": [],
+                        "arguments": [
+                          {
+                            "argumentTypes": null,
+                            "commonType": {
+                              "typeIdentifier": "t_uint256",
+                              "typeString": "uint256"
+                            },
+                            "id": 130,
+                            "isConstant": false,
+                            "isLValue": false,
+                            "isPure": false,
+                            "lValueRequested": false,
+                            "leftExpression": {
+                              "argumentTypes": null,
+                              "expression": {
+                                "argumentTypes": null,
+                                "id": 127,
+                                "name": "msg",
+                                "nodeType": "Identifier",
+                                "overloadedDeclarations": [],
+                                "referencedDeclaration": 1134,
+                                "src": "483:3:1",
+                                "typeDescriptions": {
+                                  "typeIdentifier": "t_magic_message",
+                                  "typeString": "msg"
+                                }
+                              },
+                              "id": 128,
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": false,
+                              "lValueRequested": false,
+                              "memberName": "value",
+                              "nodeType": "MemberAccess",
+                              "referencedDeclaration": null,
+                              "src": "483:9:1",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_uint256",
+                                "typeString": "uint256"
+                              }
+                            },
+                            "nodeType": "BinaryOperation",
+                            "operator": "/",
+                            "rightExpression": {
+                              "argumentTypes": null,
+                              "hexValue": "32",
+                              "id": 129,
+                              "isConstant": false,
+                              "isLValue": false,
+                              "isPure": true,
+                              "kind": "number",
+                              "lValueRequested": false,
+                              "nodeType": "Literal",
+                              "src": "495:1:1",
+                              "subdenomination": null,
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_rational_2_by_1",
+                                "typeString": "int_const 2"
+                              },
+                              "value": "2"
+                            },
+                            "src": "483:13:1",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_uint256",
+                              "typeString": "uint256"
+                            }
+                          }
+                        ],
+                        "expression": {
+                          "argumentTypes": [
+                            {
+                              "typeIdentifier": "t_uint256",
+                              "typeString": "uint256"
+                            }
+                          ],
+                          "expression": {
+                            "argumentTypes": null,
+                            "expression": {
+                              "argumentTypes": null,
+                              "id": 124,
+                              "name": "bbtShareAccount",
+                              "nodeType": "Identifier",
+                              "overloadedDeclarations": [],
+                              "referencedDeclaration": 118,
+                              "src": "456:15:1",
+                              "typeDescriptions": {
+                                "typeIdentifier": "t_address",
+                                "typeString": "address"
+                              }
+                            },
+                            "id": 125,
+                            "isConstant": false,
+                            "isLValue": false,
+                            "isPure": false,
+                            "lValueRequested": false,
+                            "memberName": "call",
+                            "nodeType": "MemberAccess",
+                            "referencedDeclaration": null,
+                            "src": "456:20:1",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_function_barecall_payable$__$returns$_t_bool_$",
+                              "typeString": "function () payable returns (bool)"
+                            }
+                          },
+                          "id": 126,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "lValueRequested": false,
+                          "memberName": "value",
+                          "nodeType": "MemberAccess",
+                          "referencedDeclaration": null,
+                          "src": "456:26:1",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_function_setvalue_nonpayable$_t_uint256_$returns$_t_function_barecall_payable$__$returns$_t_bool_$value_$",
+                            "typeString": "function (uint256) returns (function () payable returns (bool))"
+                          }
+                        },
+                        "id": 131,
+                        "isConstant": false,
+                        "isLValue": false,
+                        "isPure": false,
+                        "kind": "functionCall",
+                        "lValueRequested": false,
+                        "names": [],
+                        "nodeType": "FunctionCall",
+                        "src": "456:41:1",
+                        "typeDescriptions": {
+                          "typeIdentifier": "t_function_barecall_payable$__$returns$_t_bool_$value",
+                          "typeString": "function () payable returns (bool)"
+                        }
+                      },
+                      "id": 132,
+                      "isConstant": false,
+                      "isLValue": false,
+                      "isPure": false,
+                      "kind": "functionCall",
+                      "lValueRequested": false,
+                      "names": [],
+                      "nodeType": "FunctionCall",
+                      "src": "456:43:1",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_bool",
+                        "typeString": "bool"
+                      }
+                    },
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "falseBody": null,
+                  "id": 138,
+                  "nodeType": "IfStatement",
+                  "src": "450:84:1",
+                  "trueBody": {
+                    "id": 137,
+                    "nodeType": "Block",
+                    "src": "501:33:1",
+                    "statements": [
+                      {
+                        "expression": {
+                          "argumentTypes": null,
+                          "arguments": [],
+                          "expression": {
+                            "argumentTypes": [],
+                            "id": 134,
+                            "name": "revert",
+                            "nodeType": "Identifier",
+                            "overloadedDeclarations": [
+                              1139,
+                              1140
+                            ],
+                            "referencedDeclaration": 1139,
+                            "src": "515:6:1",
+                            "typeDescriptions": {
+                              "typeIdentifier": "t_function_revert_pure$__$returns$__$",
+                              "typeString": "function () pure"
+                            }
+                          },
+                          "id": 135,
+                          "isConstant": false,
+                          "isLValue": false,
+                          "isPure": false,
+                          "kind": "functionCall",
+                          "lValueRequested": false,
+                          "names": [],
+                          "nodeType": "FunctionCall",
+                          "src": "515:8:1",
+                          "typeDescriptions": {
+                            "typeIdentifier": "t_tuple$__$",
+                            "typeString": "tuple()"
+                          }
+                        },
+                        "id": 136,
+                        "nodeType": "ExpressionStatement",
+                        "src": "515:8:1"
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            "documentation": null,
+            "id": 140,
+            "implemented": true,
+            "isConstructor": false,
+            "isDeclaredConst": false,
+            "modifiers": [
+              {
+                "arguments": [
+                  {
+                    "argumentTypes": null,
+                    "id": 114,
+                    "name": "gameName",
+                    "nodeType": "Identifier",
+                    "overloadedDeclarations": [],
+                    "referencedDeclaration": 92,
+                    "src": "340:8:1",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bytes32",
+                      "typeString": "bytes32"
+                    }
+                  }
+                ],
+                "id": 115,
+                "modifierName": {
+                  "argumentTypes": null,
+                  "id": 113,
+                  "name": "shareAccountExists",
+                  "nodeType": "Identifier",
+                  "overloadedDeclarations": [],
+                  "referencedDeclaration": 24,
+                  "src": "321:18:1",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_modifier$_t_bytes32_$",
+                    "typeString": "modifier (bytes32)"
+                  }
+                },
+                "nodeType": "ModifierInvocation",
+                "src": "321:28:1"
+              }
+            ],
+            "name": "store",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 112,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "318:2:1"
+            },
+            "payable": true,
+            "returnParameters": {
+              "id": 116,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "365:0:1"
+            },
+            "scope": 141,
+            "src": "304:236:1",
+            "stateMutability": "payable",
+            "superFunction": null,
+            "visibility": "public"
+          }
+        ],
+        "scope": 142,
+        "src": "57:485:1"
+      }
+    ],
+    "src": "0:542:1"
+  },
+  "compiler": {
+    "name": "solc",
+    "version": "0.4.24+commit.e67f0147.Emscripten.clang"
+  },
+  "networks": {
+    "17": {
+      "events": {},
+      "links": {},
+      "address": "0x7fc10468c9523b07c78f8d07bf1226ae619c3648",
+      "transactionHash": "0x24db6e938b80ad6241e5e616e04ad4f2f265ffeac49bdfd00603a58888bca898"
+    }
+  },
+  "schemaVersion": "2.0.1",
+  "updatedAt": "2018-10-23T15:13:18.432Z"
+}

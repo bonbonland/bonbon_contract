@@ -15,7 +15,11 @@
 const web3 = require('web3')
 const HDWalletProvider = require('truffle-hdwallet-provider-privkey')
 const config = require('./tools/config.js')
-//const mnemonic = ''   //12 words mnemonic
+
+const localAccountAPrivateKey = config.envConfig.LOCAL_ACCOUNT_A_PRI_KEY
+const localAccountBPrivateKey = config.envConfig.LOCAL_ACCOUNT_B_PRI_KEY
+const localPrivateKeys = [localAccountAPrivateKey, localAccountBPrivateKey]
+
 const AccountAPrivateKey = config.envConfig.DEV_CHAIN_ACCOUNT_A_PRI_KEY
 const AccountBPrivateKey = config.envConfig.DEV_CHAIN_ACCOUNT_B_PRI_KEY
 const privateKeys = [AccountBPrivateKey, AccountAPrivateKey]  //第一个账户为默认帐号
@@ -39,6 +43,9 @@ module.exports = {
       port: 8545,
       gas: 10000000,
       network_id: '*',   // Match any network id
+      provider: function() {
+        return new HDWalletProvider(localPrivateKeys, "http://127.0.0.1:8545/");
+      },
     },
     development: {  //default network hard-coded to 'development'
       provider: () =>
