@@ -189,8 +189,8 @@ contract PausableToken is StandardToken, Pausable {
 contract DragonCityToken is PausableToken {
     using SafeMath for uint256;
     struct VaultInfo {
-        uint256 amount;     //initial assigned coins amount
-        uint256 acquiredTime;   //acquired to balance timestamp
+        uint256 amount;
+        uint256 acquiredTime;
     }
     string public name = "DragonCity Token";
     string public symbol = "DCT";
@@ -199,12 +199,19 @@ contract DragonCityToken is PausableToken {
     uint256 public constant INITIAL_SUPPLY = 6485 * Factor;
     mapping(address => VaultInfo) public vaults;
     uint256 public circulatingSupply = 0;
-    uint256 public coinsInVaults;
+    uint256 public tokensInVaults;
+    bool public activated_;
 
     event Acquired(address indexed to, uint256 amount);
+    event Activated(address indexed who);
 
     constructor() public {
         totalSupply_ = INITIAL_SUPPLY;
+    }
+
+    modifier isActivated() {
+        require(activated_ == true, "its not ready yet.");
+        _;
     }
 
     function setVault(address[] holders, uint256[] amountOfLands) public onlyOwner {
@@ -212,20 +219,30 @@ contract DragonCityToken is PausableToken {
         require(len == amountOfLands.length);
         for(uint256 i=0; i<len; i++){
             uint256 _amount = amountOfLands[i].mul(Factor);
+            tokensInVaults = tokensInVaults.sub(vaults[holders[i]].amount);
             vaults[holders[i]].amount = _amount;
-            coinsInVaults = coinsInVaults.add(_amount);
+            tokensInVaults = tokensInVaults.add(_amount);
         }
     }
 
-    function claimToken() public{
-        uint256 tokenAmount = potOfOwners[msg.sender];
+    function claimToken() public isActivated(){
+        uint256 tokenAmount = vaults[msg.sender].amount;
         require(tokenAmount > 0);
+
         vaults[msg.sender].amount = 0;
         vaults[msg.sender].acquiredTime = block.timestamp;
+
         balances[msg.sender] = tokenAmount;
         circulatingSupply = circulatingSupply.add(tokenAmount);
+
         emit Transfer(address(0), msg.sender, tokenAmount);
         emit Acquired(msg.sender, tokenAmount);
+    }
+
+    function activate() public onlyOwner(){
+        require(activated_ == false, "Already activated");
+        activated_ = true;
+        emit Activated(msg.sender);
     }
 
 }
