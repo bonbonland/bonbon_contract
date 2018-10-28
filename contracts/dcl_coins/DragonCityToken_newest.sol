@@ -214,7 +214,17 @@ contract DragonCityToken is PausableToken {
         _;
     }
 
-    function setVault(address[] holders, uint256[] amountOfLands) public onlyOwner {
+    modifier lessThanTotalSupply(uint256[] _amountOfLands) {
+        uint256 totalAmount = 0;
+        for (uint256 i; i < _amountOfLands.length; i++) {
+            uint256 amount = _amountOfLands[i].mul(Factor);
+            totalAmount = totalAmount.add(amount);
+        }
+        require(totalAmount.add(tokensInVaults) <= totalSupply_, 'can not exceed total supply.');
+        _;
+    }
+
+    function setVault(address[] holders, uint256[] amountOfLands) public onlyOwner lessThanTotalSupply(amountOfLands) {
         uint256 len = holders.length;
         require(len == amountOfLands.length);
         for(uint256 i=0; i<len; i++){
