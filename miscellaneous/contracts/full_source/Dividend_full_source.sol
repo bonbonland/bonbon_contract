@@ -183,8 +183,9 @@ contract Dividend is Pausable {
     mapping (uint256 => mapping(address => uint256)) public playersWithdrew_;    // (gameId => plyAddr => withdrewEth)
     mapping (uint256 => mapping(uint256 => RoundInfo)) public roundsInfo_;  // gameId => roundId => RoundInfo
     mapping (uint256 => uint256[]) public roundIds_;    //gameId => roundIds
-    mapping (uint256 => uint256) public cumulativeDividend;  // cumulative total dividend;
+    mapping (uint256 => uint256) public cumulativeDividend;  // gameId => cumulative total dividend;
     address[] public games;    //registered games (gameID => gameContractAddress)
+    mapping (address => uint256) public gameIdxAddress;  //address => gameId
 
     event Deposited(uint256 indexed _gameId, address indexed _from, uint256 indexed _round, uint256 _value);
     event Distributed(uint256 indexed _gameId, uint256 indexed _roundId, uint256 bbtSnapshotId, uint256 dividend);
@@ -221,11 +222,7 @@ contract Dividend is Pausable {
     * @return return registered game id, or 0 if not registered.
     */
     function getGameId(address _gameAddress) public view returns(uint256) {
-        for (uint256 i = 0; i < games.length; i++) {
-            if (games[i] == _gameAddress)
-                return i;
-        }
-        return 0;
+        return gameIdxAddress[_gameAddress];
     }
 
     /**
@@ -248,8 +245,9 @@ contract Dividend is Pausable {
     {
         bool ifRegistered = hasRegistered(_gameAddress);
         require(ifRegistered == false, 'already registered.');
-        games.push(_gameAddress);
-        return games.length - 1;
+        uint256 gameId = (games.push(_gameAddress)).sub(1);
+        gameIdxAddress[_gameAddress] = gameId;
+        return gameId;
     }
 
     /**
@@ -266,6 +264,7 @@ contract Dividend is Pausable {
     {
         uint256 gameId = getGameId(_gameAddress);
         games[gameId] = address(0);
+        gameIdxAddress[_gameAddress] = 0;
         return true;
     }
 
