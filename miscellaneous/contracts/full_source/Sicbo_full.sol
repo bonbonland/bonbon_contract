@@ -188,6 +188,7 @@ contract Sicbo is Pausable {
     }
 
     DividendInterface private Dividend;   // Dividend contract
+    uint256 private nonce;
 
     RoundInfo public currentRound;
     GameInfo public gameInfo;
@@ -202,9 +203,9 @@ contract Sicbo is Pausable {
 
     uint256 public minimalWager = 0.01 ether;   //todo 待调整
     uint256 public roundDuration = 1 minutes;  //todo 待调整
-    address public devTeamWallet = 0xF83c5c0be4c0803ECA56a4CBf02b07F6E6BbDa9c;  //todo
-    uint256 public devTeamDistributeRatio = 5;  //5%
-    uint256 public BBTxDistributeRatio = 5; //5%
+    address public devTeamWallet = 0xF83c5c0be4c0803ECA56a4CBf02b07F6E6BbDa9c;  //todo 待更改
+    uint256 public devTeamDistributeRatio = 100 / 5;  //5%
+    uint256 public BBTxDistributeRatio = 100 / 5; //5%
 
     modifier fitMinimalWager(uint256 _wager) {
         require(_wager >= minimalWager, 'minimal wager not fit.');
@@ -227,7 +228,6 @@ contract Sicbo is Pausable {
         determinePid(address(0));
     }
 
-    //todo 玩家下注
     function bet(uint8 _choice)
         fitMinimalWager(msg.value)
         isHuman
@@ -235,6 +235,8 @@ contract Sicbo is Pausable {
         public
         payable
     {
+        nonce++;
+
         uint8 plyChoice_ = uint8(Choice(_choice));
         uint256 pid_ = determinePid(msg.sender);
 
@@ -249,7 +251,7 @@ contract Sicbo is Pausable {
         }
     }
 
-    function determinePid(address _addr) internal returns(uint256) {
+    function determinePid(address _addr) private returns(uint256) {
         uint256 pid_ = playersAddressId[_addr];
         if (pid_ == 0) {
             uint256 plyId = (playersIdAddress.push(_addr)).sub(1);
@@ -260,7 +262,7 @@ contract Sicbo is Pausable {
         return pid_;
     }
 
-    function initNewRound() internal {
+    function initNewRound() private {
         RoundInfo memory roundInfo_;
         roundInfo_.roundId = (currentRound.roundId).add(1);
         roundInfo_.startTime = now;
@@ -268,26 +270,26 @@ contract Sicbo is Pausable {
         currentRound = roundInfo_;
     }
 
-    function endCurrentRound(uint256 _pid) internal {
-        //todo 最后一个玩家的投注需要返还给他
+    function endCurrentRound(uint256 _pid) private {
+        //最后一个玩家的投注需要返还给他
         PlayerVault storage vault_ = playersVault[_pid];
         vault_.balance += msg.value;
 
-        //todo 获得大小结果，分配收益
+        //获得大小结果，分配收益
         uint8 result_ = roll();
 
-        //todo 分发利润
+        //计算利润
         distribute(_pid, result_);
 
-        //更改currentRound的状态
+        //结束currentRound
         currentRound.ended = true;
         currentRound.result = result_;
 
-        //roundsHistory
+        //记录roundsHistory
         roundsHistory[currentRound.roundId] = currentRound;
     }
 
-    function doBet(uint256 _pid, uint8 _choice) internal {
+    function doBet(uint256 _pid, uint8 _choice) private {
         uint256 roundId = currentRound.roundId;
         PlayerBetInfo storage playBetInfo_ = playersBetInfo[roundId][_pid];
 
@@ -319,13 +321,13 @@ contract Sicbo is Pausable {
         emit Bet(roundId, msg.sender, _choice, msg.value);
     }
 
-    //todo 开大小
-    function roll() internal pure returns(uint8) {
-        return uint8(1);
+    //开大小
+    function roll() private view returns(uint8) {
+        return uint8(uint256(keccak256(abi.encodePacked(now, msg.sender, nonce))) % 2);
     }
 
-    //todo 根据结果分配利润
-    function distribute(uint256 _pid, uint8 _result) internal {
+    //根据结果分配利润
+    function distribute(uint256 _pid, uint8 _result) private {
         //todo 触发开奖的玩家是否获得额外的收益
         uint256 roundId = currentRound.roundId;
         uint256 winnerPot = _result == 0 ? currentRound.potBig : currentRound.potSmall;
@@ -336,8 +338,8 @@ contract Sicbo is Pausable {
             return returnWager(roundId);
         }
 
-        uint256 devTeamDistribution = loserPot * devTeamDistributeRatio / 100;
-        uint256 BBTxDistribution = loserPot * BBTxDistributeRatio / 100;
+        uint256 devTeamDistribution = loserPot / devTeamDistributeRatio;
+        uint256 BBTxDistribution = loserPot / BBTxDistributeRatio;
         devTeamWallet.transfer(devTeamDistribution);
         Dividend.deposit.value(BBTxDistribution)(roundId);
         Dividend.distribute(roundId);
@@ -354,7 +356,7 @@ contract Sicbo is Pausable {
         }
     }
 
-    function returnWager(uint256 _roundId) internal {
+    function returnWager(uint256 _roundId) private {
         for (uint256 i; i < playersIdAddress.length; i++) {
             PlayerBetInfo storage playerBetInfo_ = playersBetInfo[_roundId][i];
             if (playerBetInfo_.wager > 0) { //有投注的玩家筹码直接返回到balance中
@@ -368,6 +370,8 @@ contract Sicbo is Pausable {
         isHuman
         whenNotPaused
     {
+        nonce++;
+
         uint256 pid_ = playersAddressId[msg.sender];
         require(pid_ != 0, 'not a valid player.');
 
