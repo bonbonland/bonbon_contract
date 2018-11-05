@@ -384,4 +384,14 @@ contract Sicbo is Pausable {
 
         emit Withdraw(msg.sender, playerVault_.balance);
     }
+
+    function getTimeleft() public view returns(uint256) {
+        if (currentRound.startTime == 0 || now - currentRound.startTime > roundDuration) {
+            return 0;
+        } else if (currentRound.startTime == now) {
+            return roundDuration;
+        } else {
+            return now - currentRound.startTime;
+        }
+    }
 }

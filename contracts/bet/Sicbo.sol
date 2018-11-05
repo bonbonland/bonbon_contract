@@ -53,8 +53,9 @@ contract Sicbo is Pausable {
     mapping(uint256 => PlayerVault) public playersVault;  //pid => PlayerVault
     mapping(uint256 => mapping(uint256 => PlayerBetInfo)) public playersBetInfo;    //roundId => pid => PlayerBetInfo
 
-    event Bet(uint256 indexed _roundId, address indexed _player, uint8 indexed _choice, uint256 wager);
-    event Withdraw(address indexed _player, uint256 _amount);
+    event Bet(uint256 indexed roundId, address indexed player, uint8 indexed choice, uint256 wager);
+    event EndRound(uint256 indexed roundId, uint8 result, address player, uint256 time);
+    event Withdraw(address indexed player, uint256 amount);
 
     uint256 public minimalWager = 0.01 ether;   //todo 待调整
     uint256 public roundDuration = 1 minutes;  //todo 待调整
@@ -142,6 +143,8 @@ contract Sicbo is Pausable {
 
         //记录roundsHistory
         roundsHistory[currentRound.roundId] = currentRound;
+
+        emit EndRound(currentRound.roundId, currentRound.result, msg.sender, now);
     }
 
     function doBet(uint256 _pid, uint8 _choice) private {
@@ -233,10 +236,20 @@ contract Sicbo is Pausable {
         PlayerVault storage playerVault_ = playersVault[pid_];
         require(playerVault_.balance > 0, 'not enough balance.');
 
+        (msg.sender).transfer(playerVault_.balance);
         playerVault_.withdrew += playerVault_.balance;
         playerVault_.balance = 0;
-        (msg.sender).transfer(playerVault_.balance);
 
         emit Withdraw(msg.sender, playerVault_.balance);
+    }
+
+    function getTimeLeft() public view returns(uint256) {
+        if (currentRound.startTime == 0 || now - currentRound.startTime > roundDuration) {
+            return 0;
+        } else if (currentRound.startTime == now) {
+            return roundDuration;
+        } else {
+            return now - currentRound.startTime;
+        }
     }
 }
