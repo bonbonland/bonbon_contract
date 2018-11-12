@@ -92,15 +92,16 @@ contract Sicbo is Pausable {
     {
         uint8 plyChoice_ = uint8(Choice(_choice));
         uint256 pid_ = determinePid(msg.sender);
+        uint256 wager_ = msg.value;
 
         if (currentRound.roundId == 0 || currentRound.ended == true) {
             initNewRound();
         }
 
         if (currentRound.startTime + roundDuration < now) {
-            endCurrentRound(pid_);
+            endCurrentRound(pid_, wager_);
         } else {
-            doBet(pid_, plyChoice_);
+            doBet(pid_, plyChoice_, wager_);
         }
     }
 
@@ -123,10 +124,10 @@ contract Sicbo is Pausable {
         currentRound = roundInfo_;
     }
 
-    function endCurrentRound(uint256 _pid) private {
+    function endCurrentRound(uint256 _pid, uint256 _wager) private {
         //最后一个玩家的投注需要返还给他
         PlayerVault storage vault_ = playersVault[_pid];
-        vault_.balance += msg.value;
+        vault_.balance += _wager;
 
         //获得大小结果，分配收益
         uint8 result_ = roll();
@@ -144,36 +145,36 @@ contract Sicbo is Pausable {
         emit EndRound(currentRound.roundId, currentRound.result, msg.sender, now);
     }
 
-    function doBet(uint256 _pid, uint8 _choice) private {
+    function doBet(uint256 _pid, uint8 _choice, uint256 _wager) private {
         uint256 roundId = currentRound.roundId;
         PlayerBetInfo storage playBetInfo_ = playersBetInfo[roundId][_pid];
 
         if (playBetInfo_.wager > 0) {   //加注
             require(_choice == playBetInfo_.choice, 'can not change choice.');  //只能往已选择的方向加注
 
-            playBetInfo_.wager = (playBetInfo_.wager).add(msg.value);
+            playBetInfo_.wager = (playBetInfo_.wager).add(_wager);
             if (_choice == 0) { //投大
-                currentRound.potBig = (currentRound.potBig).add(msg.value);
-                gameInfo.totalPotBig = (gameInfo.totalPotBig).add(msg.value);
+                currentRound.potBig = (currentRound.potBig).add(_wager);
+                gameInfo.totalPotBig = (gameInfo.totalPotBig).add(_wager);
             } else {
-                currentRound.potSmall = (currentRound.potSmall).add(msg.value);
-                gameInfo.totalPotSmall = (gameInfo.totalPotSmall).add(msg.value);
+                currentRound.potSmall = (currentRound.potSmall).add(_wager);
+                gameInfo.totalPotSmall = (gameInfo.totalPotSmall).add(_wager);
             }
         } else {    //当前轮，初次投注
             playBetInfo_.choice = _choice;
-            playBetInfo_.wager = (playBetInfo_.wager).add(msg.value);
+            playBetInfo_.wager = (playBetInfo_.wager).add(_wager);
             if (_choice == 0) { //投大
                 currentRound.plyCountBig++;
-                currentRound.potBig = (currentRound.potBig).add(msg.value);
-                gameInfo.totalPotBig = (gameInfo.totalPotBig).add(msg.value);
+                currentRound.potBig = (currentRound.potBig).add(_wager);
+                gameInfo.totalPotBig = (gameInfo.totalPotBig).add(_wager);
             } else {
                 currentRound.plyCountSmall++;
-                currentRound.potSmall = (currentRound.potSmall).add(msg.value);
-                gameInfo.totalPotSmall = (gameInfo.totalPotSmall).add(msg.value);
+                currentRound.potSmall = (currentRound.potSmall).add(_wager);
+                gameInfo.totalPotSmall = (gameInfo.totalPotSmall).add(_wager);
             }
         }
 
-        emit Bet(roundId, msg.sender, _choice, msg.value);
+        emit Bet(roundId, msg.sender, _choice, _wager);
     }
 
     //开大小
