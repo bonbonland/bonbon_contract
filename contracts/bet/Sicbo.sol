@@ -43,7 +43,6 @@ contract Sicbo is Pausable {
     }
 
     DividendInterface private Dividend;   // Dividend contract
-    uint256 private nonce;
 
     RoundInfo public currentRound;
     GameInfo public gameInfo;
@@ -91,8 +90,6 @@ contract Sicbo is Pausable {
         public
         payable
     {
-        nonce++;
-
         uint8 plyChoice_ = uint8(Choice(_choice));
         uint256 pid_ = determinePid(msg.sender);
 
@@ -181,7 +178,14 @@ contract Sicbo is Pausable {
 
     //开大小
     function roll() private view returns(uint8) {
-        return uint8(uint256(keccak256(abi.encodePacked(now, msg.sender, nonce))) % 2);
+        bytes32 lastBlockHash = blockhash(block.number - 1);
+        byte lastByte = lastBlockHash[lastBlockHash.length -1];
+        uint8 lastNum = uint8(lastByte & byte(15));
+        if (lastNum <= 7) {
+            return 1;   //small
+        } else {
+            return 0;   //big
+        }
     }
 
     //根据结果分配利润
@@ -228,8 +232,6 @@ contract Sicbo is Pausable {
         isHuman
         whenNotPaused
     {
-        nonce++;
-
         uint256 pid_ = playersAddressId[msg.sender];
         require(pid_ != 0, 'not a valid player.');
 
