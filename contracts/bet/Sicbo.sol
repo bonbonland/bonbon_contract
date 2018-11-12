@@ -254,4 +254,31 @@ contract Sicbo is Pausable {
             return now - currentRound.startTime;
         }
     }
+
+    function calculateProfit() public view returns(uint256) {
+        if (currentRound.ended) //current round is end
+            return 0;
+
+        uint256 roundId = currentRound.roundId;
+        uint256 pid_ = playersAddressId[msg.sender];
+        if (pid_ == 0)      //user not exists
+            return 0;
+
+        PlayerBetInfo storage playerBetInfo_ = playersBetInfo[roundId][pid_];
+        if (playerBetInfo_.wager == 0)  //not betting on current round
+            return 0;
+
+        uint256 winnerPot = playerBetInfo_.choice == 0 ? currentRound.potBig : currentRound.potSmall;
+        uint256 loserPot = playerBetInfo_.choice == 0 ? currentRound.potSmall : currentRound.potBig;
+
+        if (winnerPot == 0 || loserPot == 0) {  //when all betting on one side, the wager will return, no winner.
+            return 0;
+        }
+
+        uint256 devTeamDistribution = loserPot / devTeamDistributeRatio;
+        uint256 BBTxDistribution = loserPot / BBTxDistributeRatio;
+        loserPot = loserPot - devTeamDistribution - BBTxDistribution;
+
+        return playerBetInfo_.wager * loserPot / winnerPot;
+    }
 }
