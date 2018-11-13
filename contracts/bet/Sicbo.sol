@@ -42,8 +42,9 @@ contract Sicbo is Pausable {
 
     struct PlayerInfo {
         uint256 returnWager;    //返还的筹码（触发开奖时返还）
-        uint256 withdrew;   //已提现
-        uint256[] roundIds; //参与游戏的局数id
+        uint256 rebetWager;     //复投已消耗
+        uint256 withdrew;       //已提现
+        uint256[] roundIds;     //参与游戏的局数id
     }
 
     DividendInterface private Dividend;   // Dividend contract
@@ -71,6 +72,12 @@ contract Sicbo is Pausable {
         _;
     }
 
+    modifier validPlayer(address _plyAddr) {
+        uint256 pid_ = playersAddressId[_plyAddr];
+        require(pid_ != 0, 'not a valid player.');
+        _;
+    }
+
     modifier isHuman() {
         address _addr = msg.sender;
         uint256 _codeLength;
@@ -87,6 +94,24 @@ contract Sicbo is Pausable {
         determinePid(address(0));
     }
 
+    //bet with balance
+    function bet(uint8 _choice, uint256 _wager)
+        validPlayer(msg.sender)
+        fitMinimalWager(_wager)
+        isHuman
+        whenNotPaused
+        public
+    {
+        uint8 plyChoice_ = uint8(Choice(_choice));
+        uint256 pid_ = playersAddressId[msg.sender];
+        uint256 playerBalance_ = getPlayerTotalBalance(pid_);
+        require(playerBalance_ >= _wager, 'not enough balance.');
+
+        playersInfo[pid_].rebetWager += _wager;
+        betAction(pid_, plyChoice_, _wager);
+    }
+
+    //bet with eth
     function bet(uint8 _choice)
         fitMinimalWager(msg.value)
         isHuman
@@ -98,14 +123,18 @@ contract Sicbo is Pausable {
         uint256 pid_ = determinePid(msg.sender);
         uint256 wager_ = msg.value;
 
+        betAction(pid_, plyChoice_, wager_);
+    }
+
+    function betAction(uint256 _pid, uint8 _choice, uint256 _wager) private {
         if (currentRound.roundId == 0 || currentRound.ended == true) {
             initNewRound();
         }
 
         if (currentRound.startTime + roundDuration < now) {
-            endCurrentRound(pid_, wager_);
+            endCurrentRound(_pid, _wager);
         } else {
-            doBet(pid_, plyChoice_, wager_);
+            doBet(_pid, _choice, _wager);
         }
     }
 
@@ -220,7 +249,7 @@ contract Sicbo is Pausable {
         for (uint256 i; i < playerRounds_.length; i++) {
             playerRoundsBalance_ += getPlayerRoundBalance(_pid, playerRounds_[i]);
         }
-        return playerRoundsBalance_ + playerInfo_.returnWager - playerInfo_.withdrew;
+        return playerRoundsBalance_ + playerInfo_.returnWager - playerInfo_.withdrew - playerInfo_.rebetWager;
     }
 
     //返回玩家某局游戏的balance（roundWager + roundWin）
@@ -265,13 +294,12 @@ contract Sicbo is Pausable {
     }
 
     function withdraw()
+        validPlayer(msg.sender)
         public
         isHuman
         whenNotPaused
     {
         uint256 pid_ = playersAddressId[msg.sender];
-        require(pid_ != 0, 'not a valid player.');
-
         uint256 playerBalance_ = getPlayerTotalBalance(pid_);
         require(playerBalance_ > 0, 'not enough balance.');
 
