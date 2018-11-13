@@ -62,10 +62,9 @@ contract Sicbo is Pausable {
     event Withdraw(address indexed player, uint256 amount);
 
     uint256 public minimalWager = 0.01 ether;   //todo 待调整
-    uint256 public roundDuration = 1 minutes;  //todo 待调整
-    address public devTeamWallet = 0xF83c5c0be4c0803ECA56a4CBf02b07F6E6BbDa9c;  //todo 待更改
-    uint256 public devTeamDistributeRatio = 100 / 5;  //5%
-    uint256 public BBTxDistributeRatio = 100 / 5; //5%
+    uint256 public roundDuration = 1 minutes;   //todo 待调整
+    uint256 public BBTxDistributeRatio = 32;    //32 / 1000
+    uint256 public agentDistributeRatio = 8;    //8 / 1000
 
     modifier fitMinimalWager(uint256 _wager) {
         require(_wager >= minimalWager, 'minimal wager not fit.');
@@ -204,12 +203,10 @@ contract Sicbo is Pausable {
 
         //如果只有单边投注，那么不管结果如何，投注的筹码直接返还
         if (winnerPot != 0 && loserPot != 0) {
-            uint256 devTeamDistribution = loserPot / devTeamDistributeRatio;
-            uint256 BBTxDistribution = loserPot / BBTxDistributeRatio;
-            devTeamWallet.transfer(devTeamDistribution);
+            uint256 BBTxDistribution = loserPot * BBTxDistributeRatio / 1000;
             Dividend.deposit.value(BBTxDistribution)(roundId);
             Dividend.distribute(roundId);
-            loserPot = loserPot - devTeamDistribution - BBTxDistribution;
+            loserPot -= BBTxDistribution;
         }
 
         roundsPot[roundId] = RoundPot(winnerPot, loserPot);
@@ -294,12 +291,12 @@ contract Sicbo is Pausable {
         }
     }
 
-    function calculateProfit() public view returns(uint256) {
+    function calculateProfit(address _plyAddr) public view returns(uint256) {
         if (currentRound.ended) //current round is end
             return 0;
 
         uint256 roundId = currentRound.roundId;
-        uint256 pid_ = playersAddressId[msg.sender];
+        uint256 pid_ = playersAddressId[_plyAddr];
         if (pid_ == 0)      //user not exists
             return 0;
 
@@ -314,9 +311,8 @@ contract Sicbo is Pausable {
             return 0;
         }
 
-        uint256 devTeamDistribution = loserPot / devTeamDistributeRatio;
-        uint256 BBTxDistribution = loserPot / BBTxDistributeRatio;
-        loserPot = loserPot - devTeamDistribution - BBTxDistribution;
+        uint256 BBTxDistribution = loserPot * BBTxDistributeRatio / 1000;
+        loserPot -= BBTxDistribution;
 
         return playerBetInfo_.wager * loserPot / winnerPot;
     }
