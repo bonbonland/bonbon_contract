@@ -24,6 +24,11 @@ contract Sicbo is Pausable {
         uint256 potSmall;
     }
 
+    struct RoundPot {           //每一轮的奖池（扣除团队和bbt分红之后的玩家奖池）
+        uint256 winnerPot;
+        uint256 loserPot;
+    }
+
     struct GameInfo {
         uint256 playerAmount;   //玩家总人数
         uint256 totalPotBig;
@@ -33,13 +38,12 @@ contract Sicbo is Pausable {
     struct PlayerBetInfo {
         uint8 choice;
         uint256 wager;          //已下注筹码
-        uint256 win;            //盈利
     }
 
-    struct PlayerVault {
-        uint256 balance;    //余额
-        uint256 totalWin;   //总盈利
+    struct PlayerInfo {
+        uint256 returnWager;    //返还的筹码（触发开奖时返还）
         uint256 withdrew;   //已提现
+        uint256[] roundIds; //参与游戏的局数id
     }
 
     DividendInterface private Dividend;   // Dividend contract
@@ -49,7 +53,8 @@ contract Sicbo is Pausable {
     address[] public playersIdAddress;  //pid => playerAddress
     mapping(address => uint256) public playersAddressId;  //address => pid
     mapping(uint256 => RoundInfo) public roundsHistory;  //roundId => RoundInfo
-    mapping(uint256 => PlayerVault) public playersVault;  //pid => PlayerVault
+    mapping(uint256 => RoundPot) public roundsPot;      //roundId => RoundPot
+    mapping(uint256 => PlayerInfo) public playersInfo;  //pid => PlayerInfo
     mapping(uint256 => mapping(uint256 => PlayerBetInfo)) public playersBetInfo;    //roundId => pid => PlayerBetInfo
 
     event Bet(uint256 indexed roundId, address indexed player, uint8 indexed choice, uint256 wager);
@@ -126,14 +131,14 @@ contract Sicbo is Pausable {
 
     function endCurrentRound(uint256 _pid, uint256 _wager) private {
         //最后一个玩家的投注需要返还给他
-        PlayerVault storage vault_ = playersVault[_pid];
-        vault_.balance += _wager;
+        PlayerInfo storage playerInfo_ = playersInfo[_pid];
+        playerInfo_.returnWager += _wager;
 
         //获得大小结果，分配收益
         uint8 result_ = roll();
 
         //计算利润
-        distribute(_pid, result_);
+        distribute(result_);
 
         //结束currentRound
         currentRound.ended = true;
@@ -146,8 +151,8 @@ contract Sicbo is Pausable {
     }
 
     function doBet(uint256 _pid, uint8 _choice, uint256 _wager) private {
-        uint256 roundId = currentRound.roundId;
-        PlayerBetInfo storage playBetInfo_ = playersBetInfo[roundId][_pid];
+        uint256 roundId_ = currentRound.roundId;
+        PlayerBetInfo storage playBetInfo_ = playersBetInfo[roundId_][_pid];
 
         if (playBetInfo_.wager > 0) {   //加注
             require(_choice == playBetInfo_.choice, 'can not change choice.');  //只能往已选择的方向加注
@@ -163,6 +168,7 @@ contract Sicbo is Pausable {
         } else {    //当前轮，初次投注
             playBetInfo_.choice = _choice;
             playBetInfo_.wager = (playBetInfo_.wager).add(_wager);
+            playersInfo[_pid].roundIds.push(roundId_);
             if (_choice == 0) { //投大
                 currentRound.plyCountBig++;
                 currentRound.potBig = (currentRound.potBig).add(_wager);
@@ -174,7 +180,7 @@ contract Sicbo is Pausable {
             }
         }
 
-        emit Bet(roundId, msg.sender, _choice, _wager);
+        emit Bet(roundId_, msg.sender, _choice, _wager);
     }
 
     //开大小
@@ -189,43 +195,76 @@ contract Sicbo is Pausable {
         }
     }
 
-    //根据结果分配利润
-    function distribute(uint256 _pid, uint8 _result) private {
+    //根据结果分配利润(记录奖池资金)
+    function distribute(uint8 _result) private {
         //todo 触发开奖的玩家是否获得额外的收益
         uint256 roundId = currentRound.roundId;
         uint256 winnerPot = _result == 0 ? currentRound.potBig : currentRound.potSmall;
         uint256 loserPot = _result == 0 ? currentRound.potSmall : currentRound.potBig;
 
         //如果只有单边投注，那么不管结果如何，投注的筹码直接返还
-        if (winnerPot == 0 || loserPot == 0) {
-            return returnWager(roundId);
+        if (winnerPot != 0 && loserPot != 0) {
+            uint256 devTeamDistribution = loserPot / devTeamDistributeRatio;
+            uint256 BBTxDistribution = loserPot / BBTxDistributeRatio;
+            devTeamWallet.transfer(devTeamDistribution);
+            Dividend.deposit.value(BBTxDistribution)(roundId);
+            Dividend.distribute(roundId);
+            loserPot = loserPot - devTeamDistribution - BBTxDistribution;
         }
 
-        uint256 devTeamDistribution = loserPot / devTeamDistributeRatio;
-        uint256 BBTxDistribution = loserPot / BBTxDistributeRatio;
-        devTeamWallet.transfer(devTeamDistribution);
-        Dividend.deposit.value(BBTxDistribution)(roundId);
-        Dividend.distribute(roundId);
-        loserPot = loserPot - devTeamDistribution - BBTxDistribution;
-
-        for (uint256 i; i < playersIdAddress.length; i++) {
-            PlayerBetInfo storage playerBetInfo_ = playersBetInfo[roundId][i];
-            if (playerBetInfo_.wager > 0 && playerBetInfo_.choice == _result) { //有投注的玩家并且投中
-                playerBetInfo_.win = playerBetInfo_.wager * loserPot / winnerPot;   //这里必须要先乘后除不然,顺序反了精度会出问题
-                //返回投注的筹码，并且将利润存入vault
-                playersVault[i].balance = playersVault[i].balance + playerBetInfo_.wager + playerBetInfo_.win;
-                playersVault[i].totalWin += playerBetInfo_.win;
-            }
-        }
+        roundsPot[roundId] = RoundPot(winnerPot, loserPot);
     }
 
-    function returnWager(uint256 _roundId) private {
-        for (uint256 i; i < playersIdAddress.length; i++) {
-            PlayerBetInfo storage playerBetInfo_ = playersBetInfo[_roundId][i];
-            if (playerBetInfo_.wager > 0) { //有投注的玩家筹码直接返回到balance中
-                playersVault[i].balance = playersVault[i].balance + playerBetInfo_.wager;
-            }
+    //玩家总balance（returnWager + allRoundsBalance - withdrew）
+    function getPlayerTotalBalance(uint256 _pid) public view returns(uint256) {
+        PlayerInfo storage playerInfo_ = playersInfo[_pid];
+        uint256[] memory playerRounds_ = getPlayerRounds(_pid);
+        uint256 playerRoundsBalance_ = 0;
+        for (uint256 i; i < playerRounds_.length; i++) {
+            playerRoundsBalance_ += getPlayerRoundBalance(_pid, playerRounds_[i]);
         }
+        return playerRoundsBalance_ + playerInfo_.returnWager - playerInfo_.withdrew;
+    }
+
+    //返回玩家某局游戏的balance（roundWager + roundWin）
+    function getPlayerRoundBalance(uint256 _pid, uint256 _roundId) public view returns(uint256) {
+        PlayerBetInfo storage playerBetInfo_ = playersBetInfo[_roundId][_pid];
+        if (playerBetInfo_.wager == 0)  //此轮未投注
+            return 0;
+
+        RoundInfo storage roundInfo_ = roundsHistory[_roundId];
+        if (roundInfo_.ended == false)  //未开奖
+            return 0;
+
+        RoundPot storage roundPot_ = roundsPot[_roundId];
+        if (roundPot_.winnerPot == 0 || roundPot_.loserPot == 0)    //只有单边投注时筹码返还
+            return playerBetInfo_.wager;
+
+        if (playerBetInfo_.choice != roundInfo_.result) //wrong choice
+            return 0;
+
+        return playerBetInfo_.wager + getPlayerRoundWin(_pid, _roundId);
+    }
+
+    //返回玩家某一轮的盈利
+    function getPlayerRoundWin(uint256 _pid, uint256 _roundId) public view returns(uint256) {
+        PlayerBetInfo storage playerBetInfo_ = playersBetInfo[_roundId][_pid];
+        if (playerBetInfo_.wager == 0)
+            return 0;
+
+        RoundInfo storage roundInfo_ = roundsHistory[_roundId];
+        if (roundInfo_.ended == false || playerBetInfo_.choice != roundInfo_.result)  //未开奖 or wrong choice
+            return 0;
+
+        RoundPot storage roundPot_ = roundsPot[_roundId];
+        if (roundPot_.winnerPot == 0 || roundPot_.loserPot == 0)    //只有单边投注时筹码返还
+            return 0;
+
+        return playerBetInfo_.wager * roundPot_.loserPot / roundPot_.winnerPot;   //这里必须要先乘后除不然,顺序反了精度会出问题
+    }
+
+    function getPlayerRounds(uint256 _pid) public view returns(uint256[]) {
+        return playersInfo[_pid].roundIds;
     }
 
     function withdraw()
@@ -236,14 +275,13 @@ contract Sicbo is Pausable {
         uint256 pid_ = playersAddressId[msg.sender];
         require(pid_ != 0, 'not a valid player.');
 
-        PlayerVault storage playerVault_ = playersVault[pid_];
-        require(playerVault_.balance > 0, 'not enough balance.');
+        uint256 playerBalance_ = getPlayerTotalBalance(pid_);
+        require(playerBalance_ > 0, 'not enough balance.');
 
-        (msg.sender).transfer(playerVault_.balance);
-        playerVault_.withdrew += playerVault_.balance;
-        playerVault_.balance = 0;
+        (msg.sender).transfer(playerBalance_);
+        playersInfo[pid_].withdrew += playerBalance_;
 
-        emit Withdraw(msg.sender, playerVault_.balance);
+        emit Withdraw(msg.sender, playerBalance_);
     }
 
     function getTimeLeft() public view returns(uint256) {
