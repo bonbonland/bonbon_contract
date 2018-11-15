@@ -57,6 +57,8 @@ contract Sicbo is Pausable {
     mapping(uint256 => RoundPot) public roundsPot;      //roundId => RoundPot
     mapping(uint256 => PlayerInfo) public playersInfo;  //pid => PlayerInfo
     mapping(uint256 => mapping(uint256 => PlayerBetInfo)) public playersBetInfo;    //roundId => pid => PlayerBetInfo
+    mapping(uint256 => uint256[20]) public top20PlayerBig;  // roundId => index => pid
+    mapping(uint256 => uint256[20]) public top20PlayerSmall;  // roundId => index => pid
 
     event Bet(uint256 indexed roundId, address indexed player, uint8 indexed choice, uint256 wager);
     event EndRound(uint256 indexed roundId, uint8 result, address player, uint256 time);
@@ -222,7 +224,56 @@ contract Sicbo is Pausable {
             }
         }
 
+        top20PlayerAction(_pid, _choice);
         emit Bet(roundId_, msg.sender, _choice, _wager);
+    }
+
+    function top20PlayerAction(uint256 _pid, uint8 _choice) private {
+        uint256 roundId_ = currentRound.roundId;
+        PlayerBetInfo storage playBetInfo_ = playersBetInfo[roundId_][_pid];
+        uint256[20] storage top20Player_ = _choice == 0 ? top20PlayerBig[roundId_] : top20PlayerSmall[roundId_];
+
+        (bool pidExistsInTop20_, uint256 pidIndex_) = getPidIndexInTop20(_choice, roundId_, _pid);
+
+        if (pidExistsInTop20_) {
+            sortTop20Player(top20Player_, roundId_, pidIndex_);
+        } else {
+            if (playersBetInfo[roundId_][top20Player_[19]].wager < playBetInfo_.wager) {
+                top20Player_[19] = _pid;
+                sortTop20Player(top20Player_, roundId_, 19);
+            }
+        }
+    }
+
+    function getPidIndexInTop20(uint256 _choice, uint256 _roundId, uint256 _pid) private view returns(bool, uint256) {
+        uint256[20] storage top20Player_ = _choice == 0 ? top20PlayerBig[_roundId] : top20PlayerSmall[_roundId];
+
+        //如果是加注的情况，查看用户id是否已经存在
+        for (uint256 i; i < top20Player_.length; i++) {
+            if (top20Player_[i] == _pid) {
+                return (true, i);
+            }
+        }
+
+        return (false, 0);
+    }
+
+    function sortTop20Player(uint256[20] storage _top20Player, uint256 _roundId, uint256 _startIndex) private {
+        for (uint256 i = _startIndex; i>= 1; i--) {   //compare two element
+            if (playersBetInfo[_roundId][_top20Player[i-1]].wager >= playersBetInfo[_roundId][_top20Player[i]].wager)
+                break;
+
+            uint256 biggerPid = _top20Player[i];
+            uint256 smallerPid = _top20Player[i-1];
+            _top20Player[i-1] = biggerPid;
+            _top20Player[i] = smallerPid;
+        }
+    }
+
+    function getTop20Player(uint256 _choice, uint256 _roundId) public view returns(uint256[20]) {
+        uint8 choice_ = uint8(Choice(_choice));
+        uint256[20] memory top20Player_ = choice_ == 0 ? top20PlayerBig[_roundId] : top20PlayerSmall[_roundId];
+        return top20Player_;
     }
 
     //开大小
