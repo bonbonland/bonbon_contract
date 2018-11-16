@@ -276,16 +276,22 @@ contract Sicbo is Pausable {
         return top20Player_;
     }
 
-    function getTop20PlayerWin(uint256 _choice, uint256 _roundId) public view returns(address[20], uint256[20]) {
-        uint256[20] memory top20Player_ = getTop20Player(_choice, _roundId);
+    function getTop20PlayerWin(uint256 _roundId) public view returns(address[20], uint256[20]) {
         address[20] memory top20PlayerAddr_;
         uint256[20] memory top20PlayerWin_;
+        RoundInfo storage roundInfo_ = roundsHistory[_roundId];
 
-        for (uint256 i; i < top20Player_.length; i++) {
-            uint256 pid_ = top20Player_[i];
-            top20PlayerAddr_[i] = playersIdAddress[pid_];
-            top20PlayerWin_[i] = (getPlayerRoundWin(pid_, _roundId));
+        if (roundInfo_.ended == true) {
+            uint8 choice_ = roundInfo_.result;
+            uint256[20] memory top20Player_ = getTop20Player(choice_, _roundId);
+
+            for (uint256 i; i < top20Player_.length; i++) {
+                uint256 pid_ = top20Player_[i];
+                top20PlayerAddr_[i] = playersIdAddress[pid_];
+                top20PlayerWin_[i] = getPlayerRoundWin(pid_, _roundId);
+            }
         }
+
         return (top20PlayerAddr_, top20PlayerWin_);
     }
 
