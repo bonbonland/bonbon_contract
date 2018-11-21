@@ -64,7 +64,7 @@ contract Sicbo is Pausable {
     event EndRound(uint256 indexed roundId, uint8 result, address player, uint256 time);
     event Withdraw(address indexed player, uint256 amount);
 
-    uint256 public minimalWager = 0.01 ether;   //todo 待调整
+    uint256 public minimalWager = 0.005 ether;   //todo 待调整
     uint256 public roundDuration = 1 minutes;   //todo 待调整
     uint256 public BBTxDistributeRatio = 32;    //32 / 1000
     uint256 public agentDistributeRatio = 8;    //8 / 1000
