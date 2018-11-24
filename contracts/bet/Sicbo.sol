@@ -215,39 +215,12 @@ contract Sicbo is Pausable {
             gameInfo.totalPotSmall = (gameInfo.totalPotSmall).add(_wager);
         }
 
-        //        if (playBetInfo_.wager > 0) {   //加注
-        //            require(_choice == playBetInfo_.choice, 'can not change choice.');  //只能往已选择的方向加注
-        //
-        //            playBetInfo_.wager = (playBetInfo_.wager).add(_wager);
-        //            if (_choice == 0) { //投大
-        //                currentRound.potBig = (currentRound.potBig).add(_wager);
-        //                gameInfo.totalPotBig = (gameInfo.totalPotBig).add(_wager);
-        //            } else {
-        //                currentRound.potSmall = (currentRound.potSmall).add(_wager);
-        //                gameInfo.totalPotSmall = (gameInfo.totalPotSmall).add(_wager);
-        //            }
-        //        } else {    //当前轮，初次投注
-        //            playBetInfo_.choice = _choice;
-        //            playBetInfo_.wager = (playBetInfo_.wager).add(_wager);
-        //            playersInfo[_pid].roundIds.push(roundId_);
-        //            if (_choice == 0) { //投大
-        //                currentRound.plyCountBig++;
-        //                currentRound.potBig = (currentRound.potBig).add(_wager);
-        //                gameInfo.totalPotBig = (gameInfo.totalPotBig).add(_wager);
-        //            } else {
-        //                currentRound.plyCountSmall++;
-        //                currentRound.potSmall = (currentRound.potSmall).add(_wager);
-        //                gameInfo.totalPotSmall = (gameInfo.totalPotSmall).add(_wager);
-        //            }
-        //        }
-
         top20PlayerAction(_pid, _choice);
         emit Bet(roundId_, msg.sender, _choice, _wager);
     }
 
     function top20PlayerAction(uint256 _pid, uint8 _choice) private {
         uint256 roundId_ = currentRound.roundId;
-        // PlayerBetInfo[] storage playBetInfo_ = playersBetInfo[roundId_][_pid];
         uint256[20] storage top20Player_ = _choice == 0 ? top20PlayerBig[roundId_] : top20PlayerSmall[roundId_];
 
         (bool pidExistsInTop20_, uint256 pidIndex_) = getPidIndexInTop20(_choice, roundId_, _pid);
@@ -346,7 +319,7 @@ contract Sicbo is Pausable {
     function roll() private view returns(uint8) {
         bytes32 lastBlockHash = blockhash(block.number - 1);
         bytes1 lastByte = lastBlockHash[lastBlockHash.length -1];
-        uint8 lastNum = uint8(lastByte & bytes1(0x0f));    //todo 测试结果是否正常
+        uint8 lastNum = uint8(lastByte & bytes1(0x0f));
         if (lastNum <= 7) {
             return 1;   //small
         } else {
@@ -379,8 +352,6 @@ contract Sicbo is Pausable {
 
     //返回玩家某局游戏的balance（roundWager + roundWin）
     function getPlayerRoundBalance(uint256 _pid, uint256 _roundId) public view returns(uint256) {
-        //        PlayerBetInfo storage playerBetInfo_ = playersBetInfo[_roundId][_pid];
-
         uint256 playerWagerBig_ = getPlayerRoundWager(_roundId, _pid, 0);
         uint256 playerWagerSmall_ = getPlayerRoundWager(_roundId, _pid, 1);
 
@@ -395,11 +366,7 @@ contract Sicbo is Pausable {
         if (roundPot_.winnerPot == 0 || roundPot_.loserPot == 0)    //只有单边投注时筹码返还
             return playerWagerBig_ > 0 ? playerWagerBig_ : playerWagerSmall_;
 
-        //        if (playerBetInfo_.choice != roundInfo_.result) //wrong choice
-        //            return 0;
-
         return getPlayerRoundWager(_roundId, _pid, roundInfo_.result) + getPlayerRoundWin(_pid, _roundId);
-        //        return playerBetInfo_.wager + getPlayerRoundWin(_pid, _roundId);
     }
 
     //返回玩家某一轮的盈利
@@ -409,7 +376,6 @@ contract Sicbo is Pausable {
             return 0;
 
         RoundInfo storage roundInfo_ = roundsHistory[_roundId];
-        //        if (roundInfo_.ended == false || playerBetInfo_.choice != roundInfo_.result)  //未开奖 or wrong choice
         if (roundInfo_.ended == false)  //未开奖 or wrong choice
             return 0;
 
@@ -472,9 +438,6 @@ contract Sicbo is Pausable {
         if (winnerPot == 0 || loserPot == 0) {  //when all betting on one side, the wager will return, no winner.
             return 0;
         }
-
-        //        uint256 BBTxDistribution = loserPot * BBTxDistributeRatio / 1000;
-        //        loserPot -= BBTxDistribution;
 
         return getPlayerRoundWager(currentRound.roundId, pid_, _choice) * loserPot / winnerPot;   //这里必须要先乘后除不然,顺序反了精度会出问题
     }
