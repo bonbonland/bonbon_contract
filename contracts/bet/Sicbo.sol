@@ -299,7 +299,11 @@ contract Sicbo is Pausable {
         return playerBetWager_;
     }
 
-    function getPlayerRoundBets(uint256 _roundId, uint256 _pid) public view returns(uint8[] memory, uint256[] memory, uint256[] memory) {
+    function getPlayerRoundBets(uint256 _roundId, uint256 _pid)
+        public
+        view
+        returns(uint8[] memory, uint256[] memory, uint256[] memory)
+    {
         //todo 返回玩家的某一轮的投注记录信息
         PlayerBetInfo[] storage playerBetInfo_ = playersBetInfo[_roundId][_pid];
 
@@ -383,7 +387,8 @@ contract Sicbo is Pausable {
         if (roundPot_.winnerPot == 0 || roundPot_.loserPot == 0)    //只有单边投注时筹码返还
             return 0;
 
-        return getPlayerRoundWager(_roundId, _pid, roundInfo_.result) * roundPot_.loserPot / roundPot_.winnerPot;   //这里必须要先乘后除不然,顺序反了精度会出问题
+        //这里必须要先乘后除不然,顺序反了精度会出问题
+        return getPlayerRoundWager(_roundId, _pid, roundInfo_.result) * roundPot_.loserPot / roundPot_.winnerPot;
     }
 
     function getPlayerRounds(uint256 _pid) public view returns(uint256[] memory) {
@@ -439,6 +444,7 @@ contract Sicbo is Pausable {
             return 0;
         }
 
-        return getPlayerRoundWager(currentRound.roundId, pid_, _choice) * loserPot / winnerPot;   //这里必须要先乘后除不然,顺序反了精度会出问题
+        //这里必须要先乘后除不然,顺序反了精度会出问题
+        return getPlayerRoundWager(currentRound.roundId, pid_, _choice) * loserPot / winnerPot;
     }
 }
