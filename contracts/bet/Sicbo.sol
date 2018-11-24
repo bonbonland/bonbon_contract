@@ -38,6 +38,7 @@ contract Sicbo is Pausable {
     struct PlayerBetInfo {
         uint8 choice;
         uint256 wager;          //已下注筹码
+        uint256 betTime;        //下注时间
     }
 
     struct PlayerInfo {
@@ -56,7 +57,7 @@ contract Sicbo is Pausable {
     mapping(uint256 => RoundInfo) public roundsHistory;  //roundId => RoundInfo
     mapping(uint256 => RoundPot) public roundsPot;      //roundId => RoundPot
     mapping(uint256 => PlayerInfo) public playersInfo;  //pid => PlayerInfo
-    mapping(uint256 => mapping(uint256 => PlayerBetInfo)) public playersBetInfo;    //roundId => pid => PlayerBetInfo
+    mapping(uint256 => mapping(uint256 => PlayerBetInfo[])) public playersBetInfo;    //roundId => pid => PlayerBetInfo
     mapping(uint256 => uint256[20]) public top20PlayerBig;  // roundId => index => pid
     mapping(uint256 => uint256[20]) public top20PlayerSmall;  // roundId => index => pid
 
@@ -196,33 +197,49 @@ contract Sicbo is Pausable {
 
     function betAction(uint256 _pid, uint8 _choice, uint256 _wager) private {
         uint256 roundId_ = currentRound.roundId;
-        PlayerBetInfo storage playBetInfo_ = playersBetInfo[roundId_][_pid];
+        PlayerBetInfo[] storage playBetInfo_ = playersBetInfo[roundId_][_pid];
+        uint256[] storage playerRounds_ = playersInfo[_pid].roundIds;
 
-        if (playBetInfo_.wager > 0) {   //加注
-            require(_choice == playBetInfo_.choice, 'can not change choice.');  //只能往已选择的方向加注
+        if (playBetInfo_.length == 0)   //初次投注
+            playerRounds_.push(roundId_);
 
-            playBetInfo_.wager = (playBetInfo_.wager).add(_wager);
-            if (_choice == 0) { //投大
-                currentRound.potBig = (currentRound.potBig).add(_wager);
-                gameInfo.totalPotBig = (gameInfo.totalPotBig).add(_wager);
-            } else {
-                currentRound.potSmall = (currentRound.potSmall).add(_wager);
-                gameInfo.totalPotSmall = (gameInfo.totalPotSmall).add(_wager);
-            }
-        } else {    //当前轮，初次投注
-            playBetInfo_.choice = _choice;
-            playBetInfo_.wager = (playBetInfo_.wager).add(_wager);
-            playersInfo[_pid].roundIds.push(roundId_);
-            if (_choice == 0) { //投大
-                currentRound.plyCountBig++;
-                currentRound.potBig = (currentRound.potBig).add(_wager);
-                gameInfo.totalPotBig = (gameInfo.totalPotBig).add(_wager);
-            } else {
-                currentRound.plyCountSmall++;
-                currentRound.potSmall = (currentRound.potSmall).add(_wager);
-                gameInfo.totalPotSmall = (gameInfo.totalPotSmall).add(_wager);
-            }
+        playBetInfo_.push(PlayerBetInfo(_choice, _wager, now)); //投注
+
+        if (_choice == 0) { //投大
+            currentRound.plyCountBig++;
+            currentRound.potBig = (currentRound.potBig).add(_wager);
+            gameInfo.totalPotBig = (gameInfo.totalPotBig).add(_wager);
+        } else {
+            currentRound.plyCountSmall++;
+            currentRound.potSmall = (currentRound.potSmall).add(_wager);
+            gameInfo.totalPotSmall = (gameInfo.totalPotSmall).add(_wager);
         }
+
+        //        if (playBetInfo_.wager > 0) {   //加注
+        //            require(_choice == playBetInfo_.choice, 'can not change choice.');  //只能往已选择的方向加注
+        //
+        //            playBetInfo_.wager = (playBetInfo_.wager).add(_wager);
+        //            if (_choice == 0) { //投大
+        //                currentRound.potBig = (currentRound.potBig).add(_wager);
+        //                gameInfo.totalPotBig = (gameInfo.totalPotBig).add(_wager);
+        //            } else {
+        //                currentRound.potSmall = (currentRound.potSmall).add(_wager);
+        //                gameInfo.totalPotSmall = (gameInfo.totalPotSmall).add(_wager);
+        //            }
+        //        } else {    //当前轮，初次投注
+        //            playBetInfo_.choice = _choice;
+        //            playBetInfo_.wager = (playBetInfo_.wager).add(_wager);
+        //            playersInfo[_pid].roundIds.push(roundId_);
+        //            if (_choice == 0) { //投大
+        //                currentRound.plyCountBig++;
+        //                currentRound.potBig = (currentRound.potBig).add(_wager);
+        //                gameInfo.totalPotBig = (gameInfo.totalPotBig).add(_wager);
+        //            } else {
+        //                currentRound.plyCountSmall++;
+        //                currentRound.potSmall = (currentRound.potSmall).add(_wager);
+        //                gameInfo.totalPotSmall = (gameInfo.totalPotSmall).add(_wager);
+        //            }
+        //        }
 
         top20PlayerAction(_pid, _choice);
         emit Bet(roundId_, msg.sender, _choice, _wager);
@@ -230,22 +247,22 @@ contract Sicbo is Pausable {
 
     function top20PlayerAction(uint256 _pid, uint8 _choice) private {
         uint256 roundId_ = currentRound.roundId;
-        PlayerBetInfo storage playBetInfo_ = playersBetInfo[roundId_][_pid];
+        // PlayerBetInfo[] storage playBetInfo_ = playersBetInfo[roundId_][_pid];
         uint256[20] storage top20Player_ = _choice == 0 ? top20PlayerBig[roundId_] : top20PlayerSmall[roundId_];
 
         (bool pidExistsInTop20_, uint256 pidIndex_) = getPidIndexInTop20(_choice, roundId_, _pid);
 
         if (pidExistsInTop20_) {
-            sortTop20Player(top20Player_, roundId_, pidIndex_);
+            sortTop20Player(top20Player_, roundId_, pidIndex_, _choice);
         } else {
-            if (playersBetInfo[roundId_][top20Player_[19]].wager < playBetInfo_.wager) {
+            if (getPlayerRoundWager(roundId_, top20Player_[19], _choice) < getPlayerRoundWager(roundId_, _pid, _choice)) {
                 top20Player_[19] = _pid;
-                sortTop20Player(top20Player_, roundId_, 19);
+                sortTop20Player(top20Player_, roundId_, 19, _choice);
             }
         }
     }
 
-    function getPidIndexInTop20(uint256 _choice, uint256 _roundId, uint256 _pid) private view returns(bool, uint256) {
+    function getPidIndexInTop20(uint8 _choice, uint256 _roundId, uint256 _pid) private view returns(bool, uint256) {
         uint256[20] storage top20Player_ = _choice == 0 ? top20PlayerBig[_roundId] : top20PlayerSmall[_roundId];
 
         //如果是加注的情况，查看用户id是否已经存在
@@ -258,9 +275,9 @@ contract Sicbo is Pausable {
         return (false, 0);
     }
 
-    function sortTop20Player(uint256[20] storage _top20Player, uint256 _roundId, uint256 _startIndex) private {
+    function sortTop20Player(uint256[20] storage _top20Player, uint256 _roundId, uint256 _startIndex, uint8 _choice) private {
         for (uint256 i = _startIndex; i>= 1; i--) {   //compare two element
-            if (playersBetInfo[_roundId][_top20Player[i-1]].wager >= playersBetInfo[_roundId][_top20Player[i]].wager)
+            if (getPlayerRoundWager(_roundId, _top20Player[i-1], _choice) >= getPlayerRoundWager(_roundId, _top20Player[i], _choice))
                 break;
 
             uint256 biggerPid = _top20Player[i];
@@ -270,13 +287,13 @@ contract Sicbo is Pausable {
         }
     }
 
-    function getTop20Player(uint256 _choice, uint256 _roundId) public view returns(uint256[20]) {
+    function getTop20Player(uint256 _choice, uint256 _roundId) public view returns(uint256[20] memory) {
         uint8 choice_ = uint8(Choice(_choice));
         uint256[20] memory top20Player_ = choice_ == 0 ? top20PlayerBig[_roundId] : top20PlayerSmall[_roundId];
         return top20Player_;
     }
 
-    function getTop20PlayerWin(uint256 _roundId) public view returns(address[20], uint256[20]) {
+    function getTop20PlayerWin(uint256 _roundId) public view returns(address[20] memory, uint256[20] memory) {
         address[20] memory top20PlayerAddr_;
         uint256[20] memory top20PlayerWin_;
         RoundInfo storage roundInfo_ = roundsHistory[_roundId];
@@ -295,11 +312,41 @@ contract Sicbo is Pausable {
         return (top20PlayerAddr_, top20PlayerWin_);
     }
 
+    function getPlayerRoundWager(uint256 _roundId, uint256 _pid, uint8 _choice) public view returns(uint256) {
+        //todo 计算某一轮玩家的某个方向的总投注
+        PlayerBetInfo[] storage playerBetInfo_ = playersBetInfo[_roundId][_pid];
+
+        uint256 playerBetWager_ = 0;
+        for (uint256 i = 0; i < playerBetInfo_.length; i++) {
+            if (playerBetInfo_[i].choice == _choice) {
+                playerBetWager_ += playerBetInfo_[i].wager;
+            }
+        }
+
+        return playerBetWager_;
+    }
+
+    function getPlayerRoundBets(uint256 _roundId, uint256 _pid) public view returns(uint8[] memory, uint256[] memory, uint256[] memory) {
+        //todo 返回玩家的某一轮的投注记录信息
+        PlayerBetInfo[] storage playerBetInfo_ = playersBetInfo[_roundId][_pid];
+
+        uint8[] memory playerBetChoices_ = new uint8[](playerBetInfo_.length);
+        uint256[] memory playerBetWagers_ = new uint256[](playerBetInfo_.length);
+        uint256[] memory playerBetTime_ = new uint256[](playerBetInfo_.length);
+        for (uint256 i = 0; i < playerBetInfo_.length; i++) {
+            playerBetChoices_[i] = playerBetInfo_[i].choice;
+            playerBetWagers_[i] = playerBetInfo_[i].wager;
+            playerBetTime_[i] = playerBetInfo_[i].betTime;
+        }
+
+        return (playerBetChoices_, playerBetWagers_, playerBetTime_);
+    }
+
     //开大小
     function roll() private view returns(uint8) {
         bytes32 lastBlockHash = blockhash(block.number - 1);
-        byte lastByte = lastBlockHash[lastBlockHash.length -1];
-        uint8 lastNum = uint8(lastByte & byte(15));
+        bytes1 lastByte = lastBlockHash[lastBlockHash.length -1];
+        uint8 lastNum = uint8(lastByte & bytes1(0x0f));    //todo 测试结果是否正常
         if (lastNum <= 7) {
             return 1;   //small
         } else {
@@ -332,8 +379,12 @@ contract Sicbo is Pausable {
 
     //返回玩家某局游戏的balance（roundWager + roundWin）
     function getPlayerRoundBalance(uint256 _pid, uint256 _roundId) public view returns(uint256) {
-        PlayerBetInfo storage playerBetInfo_ = playersBetInfo[_roundId][_pid];
-        if (playerBetInfo_.wager == 0)  //此轮未投注
+        //        PlayerBetInfo storage playerBetInfo_ = playersBetInfo[_roundId][_pid];
+
+        uint256 playerWagerBig_ = getPlayerRoundWager(_roundId, _pid, 0);
+        uint256 playerWagerSmall_ = getPlayerRoundWager(_roundId, _pid, 1);
+
+        if (playerWagerBig_ == 0 && playerWagerSmall_ == 0)  //此轮未投注
             return 0;
 
         RoundInfo storage roundInfo_ = roundsHistory[_roundId];
@@ -342,32 +393,34 @@ contract Sicbo is Pausable {
 
         RoundPot storage roundPot_ = roundsPot[_roundId];
         if (roundPot_.winnerPot == 0 || roundPot_.loserPot == 0)    //只有单边投注时筹码返还
-            return playerBetInfo_.wager;
+            return playerWagerBig_ > 0 ? playerWagerBig_ : playerWagerSmall_;
 
-        if (playerBetInfo_.choice != roundInfo_.result) //wrong choice
-            return 0;
+        //        if (playerBetInfo_.choice != roundInfo_.result) //wrong choice
+        //            return 0;
 
-        return playerBetInfo_.wager + getPlayerRoundWin(_pid, _roundId);
+        return getPlayerRoundWager(_roundId, _pid, roundInfo_.result) + getPlayerRoundWin(_pid, _roundId);
+        //        return playerBetInfo_.wager + getPlayerRoundWin(_pid, _roundId);
     }
 
     //返回玩家某一轮的盈利
     function getPlayerRoundWin(uint256 _pid, uint256 _roundId) public view returns(uint256) {
-        PlayerBetInfo storage playerBetInfo_ = playersBetInfo[_roundId][_pid];
-        if (playerBetInfo_.wager == 0)
+        PlayerBetInfo[] storage playerBetInfo_ = playersBetInfo[_roundId][_pid];
+        if (playerBetInfo_.length == 0)     //此玩家未投注
             return 0;
 
         RoundInfo storage roundInfo_ = roundsHistory[_roundId];
-        if (roundInfo_.ended == false || playerBetInfo_.choice != roundInfo_.result)  //未开奖 or wrong choice
+        //        if (roundInfo_.ended == false || playerBetInfo_.choice != roundInfo_.result)  //未开奖 or wrong choice
+        if (roundInfo_.ended == false)  //未开奖 or wrong choice
             return 0;
 
         RoundPot storage roundPot_ = roundsPot[_roundId];
         if (roundPot_.winnerPot == 0 || roundPot_.loserPot == 0)    //只有单边投注时筹码返还
             return 0;
 
-        return playerBetInfo_.wager * roundPot_.loserPot / roundPot_.winnerPot;   //这里必须要先乘后除不然,顺序反了精度会出问题
+        return getPlayerRoundWager(_roundId, _pid, roundInfo_.result) * roundPot_.loserPot / roundPot_.winnerPot;   //这里必须要先乘后除不然,顺序反了精度会出问题
     }
 
-    function getPlayerRounds(uint256 _pid) public view returns(uint256[]) {
+    function getPlayerRounds(uint256 _pid) public view returns(uint256[] memory) {
         return playersInfo[_pid].roundIds;
     }
 
@@ -397,7 +450,10 @@ contract Sicbo is Pausable {
         }
     }
 
-    function calculateProfit(address _plyAddr) public view returns(uint256) {
+    //计算当前轮的玩家收益
+    function calculateProfit(address _plyAddr, uint8 _choice) public view returns(uint256) {
+        uint8 plyChoice_ = uint8(Choice(_choice));
+
         if (currentRound.ended) //current round is end
             return 0;
 
@@ -406,20 +462,20 @@ contract Sicbo is Pausable {
         if (pid_ == 0)      //user not exists
             return 0;
 
-        PlayerBetInfo storage playerBetInfo_ = playersBetInfo[roundId][pid_];
-        if (playerBetInfo_.wager == 0)  //not betting on current round
+        PlayerBetInfo[] storage playerBetInfo_ = playersBetInfo[roundId][pid_];
+        if (playerBetInfo_.length == 0)  //not betting on current round
             return 0;
 
-        uint256 winnerPot = playerBetInfo_.choice == 0 ? currentRound.potBig : currentRound.potSmall;
-        uint256 loserPot = playerBetInfo_.choice == 0 ? currentRound.potSmall : currentRound.potBig;
+        uint256 winnerPot = plyChoice_ == 0 ? currentRound.potBig : currentRound.potSmall;
+        uint256 loserPot = plyChoice_ == 0 ? currentRound.potSmall : currentRound.potBig;
 
         if (winnerPot == 0 || loserPot == 0) {  //when all betting on one side, the wager will return, no winner.
             return 0;
         }
 
-        uint256 BBTxDistribution = loserPot * BBTxDistributeRatio / 1000;
-        loserPot -= BBTxDistribution;
+        //        uint256 BBTxDistribution = loserPot * BBTxDistributeRatio / 1000;
+        //        loserPot -= BBTxDistribution;
 
-        return playerBetInfo_.wager * loserPot / winnerPot;
+        return getPlayerRoundWager(currentRound.roundId, pid_, _choice) * loserPot / winnerPot;   //这里必须要先乘后除不然,顺序反了精度会出问题
     }
 }
