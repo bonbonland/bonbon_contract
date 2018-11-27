@@ -72,6 +72,9 @@ contract PlayerAffiliate is Ownable {
     mapping (uint256 => address) public games_;    //gameId => gameAddress
     mapping (address => uint256) public gameIds_;  //gameAddress => gameId
 
+    event RegisteredGame(address _addr, uint256 _gameId);
+    event RegisteredAffiliate(uint256 indexed _gameId, address _plyAddr, address _affAddr);
+
     modifier isRegisteredGame(address _addr) {
         require(gameIds_[_addr] != 0, 'not a registered game.');
         _;
@@ -135,6 +138,8 @@ contract PlayerAffiliate is Ownable {
         gameCount_++;
         games_[gameCount_] = _addr;
         gameIds_[_addr] = gameCount_;
+
+        emit RegisteredGame(_addr, gameCount_);
     }
 
     function unRegisterGame(address _addr)
@@ -159,6 +164,8 @@ contract PlayerAffiliate is Ownable {
         determinePID(gameId, _affAddr);
 
         playerAffiliate_[_plyAddr] = _affAddr;
+
+        emit RegisteredAffiliate(gameId, _plyAddr, _affAddr);
     }
 
     function hasAffiliate(address _plyAddr) public view returns(bool) {
