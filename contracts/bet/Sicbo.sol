@@ -39,7 +39,6 @@ contract Sicbo is Pausable {
     }
 
     struct GameInfo {
-//        uint256 playerAmount;   //玩家总人数
         uint256 totalPotBig;
         uint256 totalPotSmall;
     }
@@ -62,8 +61,6 @@ contract Sicbo is Pausable {
 
     RoundInfo public currentRound;
     GameInfo public gameInfo;
-//    address[] public playersIdAddress;  //pid => playerAddress
-//    mapping(address => uint256) public playersAddressId;  //address => pid
     mapping(uint256 => RoundInfo) public roundsHistory;  //roundId => RoundInfo
     mapping(uint256 => RoundPot) public roundsPot;      //roundId => RoundPot
     mapping(uint256 => PlayerInfo) public playersInfo;  //pid => PlayerInfo
@@ -86,7 +83,6 @@ contract Sicbo is Pausable {
     }
 
     modifier validPlayer(address _plyAddr) {
-//        uint256 pid_ = playersAddressId[_plyAddr];
         uint256 pid_ = getPlayerId(_plyAddr);
         require(pid_ != 0, 'not a valid player.');
         _;
@@ -104,9 +100,6 @@ contract Sicbo is Pausable {
     constructor(address _dividendContract, address _playerAffiliateContract) public {
         Dividend = DividendInterface(_dividendContract);
         PlayerAffiliate = PlayerAffiliateInterface(_playerAffiliateContract);
-
-        //填充pid0，不然第一个玩家需要第二次determine才生效
-//        determinePid(address(0));
     }
 
     function getPlayerId(address _plyAddr) public view returns(uint256) {
@@ -130,7 +123,6 @@ contract Sicbo is Pausable {
         public
     {
         uint8 plyChoice_ = uint8(Choice(_choice));
-//        uint256 pid_ = playersAddressId[msg.sender];
         uint256 pid_ = getPlayerId(msg.sender);
         uint256 playerBalance_ = getPlayerTotalBalance(pid_);
         require(playerBalance_ >= _wager, 'not enough balance.');
@@ -161,7 +153,6 @@ contract Sicbo is Pausable {
         payable
     {
         uint8 plyChoice_ = uint8(Choice(_choice));
-//        uint256 pid_ = determinePid(msg.sender);
         uint256 pid_ = PlayerAffiliate.getOrCreatePlayerId(msg.sender);
         uint256 wager_ = msg.value;
 
@@ -180,17 +171,6 @@ contract Sicbo is Pausable {
             betAction(pid_, plyChoice_, wager_);
         }
     }
-
-//    function determinePid(address _addr) private returns(uint256) {
-//        uint256 pid_ = playersAddressId[_addr];
-//        if (pid_ == 0) {
-//            uint256 plyId = (playersIdAddress.push(_addr)).sub(1);
-//            playersAddressId[_addr] = plyId;
-//            gameInfo.playerAmount++;
-//            return plyId;
-//        }
-//        return pid_;
-//    }
 
     function initNewRound() private {
         RoundInfo memory roundInfo_;
@@ -303,7 +283,6 @@ contract Sicbo is Pausable {
 
             for (uint256 i; i < top20Player_.length; i++) {
                 uint256 pid_ = top20Player_[i];
-//                top20PlayerAddr_[i] = playersIdAddress[pid_];
                 top20PlayerAddr_[i] = getPlayerAddrById(pid_);
                 top20PlayerWin_[i] = getPlayerRoundWin(pid_, _roundId);
             }
@@ -313,7 +292,6 @@ contract Sicbo is Pausable {
     }
 
     function getPlayerRoundWager(uint256 _roundId, uint256 _pid, uint8 _choice) public view returns(uint256) {
-        //todo 计算某一轮玩家的某个方向的总投注
         PlayerBetInfo[] storage playerBetInfo_ = playersBetInfo[_roundId][_pid];
 
         uint256 playerBetWager_ = 0;
@@ -331,7 +309,6 @@ contract Sicbo is Pausable {
         view
         returns(uint8[] memory, uint256[] memory, uint256[] memory)
     {
-        //todo 返回玩家的某一轮的投注记录信息
         PlayerBetInfo[] storage playerBetInfo_ = playersBetInfo[_roundId][_pid];
 
         uint8[] memory playerBetChoices_ = new uint8[](playerBetInfo_.length);
@@ -428,7 +405,6 @@ contract Sicbo is Pausable {
         isHuman
         whenNotPaused
     {
-//        uint256 pid_ = playersAddressId[msg.sender];
         uint256 pid_ = getPlayerId(msg.sender);
         uint256 playerBalance_ = getPlayerTotalBalance(pid_);
         require(playerBalance_ > 0, 'not enough balance.');
@@ -450,30 +426,29 @@ contract Sicbo is Pausable {
     }
 
     //计算当前轮的玩家收益
-    function calculateProfit(address _plyAddr, uint8 _choice) public view returns(uint256) {
-        uint8 plyChoice_ = uint8(Choice(_choice));
-
-        if (currentRound.ended) //current round is end
-            return 0;
-
-        uint256 roundId = currentRound.roundId;
-//        uint256 pid_ = playersAddressId[_plyAddr];
-        uint256 pid_ = getPlayerId(_plyAddr);
-        if (pid_ == 0)      //user not exists
-            return 0;
-
-        PlayerBetInfo[] storage playerBetInfo_ = playersBetInfo[roundId][pid_];
-        if (playerBetInfo_.length == 0)  //not betting on current round
-            return 0;
-
-        uint256 winnerPot = plyChoice_ == 0 ? currentRound.potBig : currentRound.potSmall;
-        uint256 loserPot = plyChoice_ == 0 ? currentRound.potSmall : currentRound.potBig;
-
-        if (winnerPot == 0 || loserPot == 0) {  //when all betting on one side, the wager will return, no winner.
-            return 0;
-        }
-
-        //这里必须要先乘后除不然,顺序反了精度会出问题
-        return getPlayerRoundWager(currentRound.roundId, pid_, _choice) * loserPot / winnerPot;
-    }
+//    function calculateProfit(address _plyAddr, uint8 _choice) public view returns(uint256) {
+//        uint8 plyChoice_ = uint8(Choice(_choice));
+//
+//        if (currentRound.ended) //current round is end
+//            return 0;
+//
+//        uint256 roundId = currentRound.roundId;
+//        uint256 pid_ = getPlayerId(_plyAddr);
+//        if (pid_ == 0)      //user not exists
+//            return 0;
+//
+//        PlayerBetInfo[] storage playerBetInfo_ = playersBetInfo[roundId][pid_];
+//        if (playerBetInfo_.length == 0)  //not betting on current round
+//            return 0;
+//
+//        uint256 winnerPot = plyChoice_ == 0 ? currentRound.potBig : currentRound.potSmall;
+//        uint256 loserPot = plyChoice_ == 0 ? currentRound.potSmall : currentRound.potBig;
+//
+//        if (winnerPot == 0 || loserPot == 0) {  //when all betting on one side, the wager will return, no winner.
+//            return 0;
+//        }
+//
+//        //这里必须要先乘后除不然,顺序反了精度会出问题
+//        return getPlayerRoundWager(currentRound.roundId, pid_, _choice) * loserPot / winnerPot;
+//    }
 }
