@@ -130,6 +130,15 @@ contract PlayerAffiliate is Ownable {
         return players_[gameId][_pid];
     }
 
+    function getPlayerAmount(address _gameAddr)
+        isRegisteredGame(_gameAddr)
+        public
+        view
+        returns(uint256)
+    {
+        return playerCount_[gameIds_[_gameAddr]];
+    }
+
     function registerGame(address _addr)
         onlyOwner
         isNotRegisteredGame(_addr)
@@ -148,6 +157,7 @@ contract PlayerAffiliate is Ownable {
         public
     {
         uint256 gameId = gameIds_[_addr];
+        playerCount_[gameId] = 0;
         games_[gameId] = address(0);
         gameIds_[_addr] = 0;
     }
@@ -182,13 +192,13 @@ contract PlayerAffiliate is Ownable {
         playerAffiliate_[_plyAddr] = address(0);
     }
 
-    function getPlyAffiliateId(address _plyAddr)
-        isRegisteredGame(msg.sender)
+    function getPlyAffiliateId(address _gameAddr, address _plyAddr)
+        isRegisteredGame(_gameAddr)
         public
         view
         returns(uint256)
     {
-        uint256 gameId = gameIds_[msg.sender];
+        uint256 gameId = gameIds_[_gameAddr];
         address affAddr = playerAffiliate_[_plyAddr];
         return playerIds_[gameId][affAddr];
     }

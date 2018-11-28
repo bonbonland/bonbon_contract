@@ -8,6 +8,15 @@ interface DividendInterface {
     function distribute(uint256 _round) external returns(bool);
 }
 
+interface PlayerAffiliateInterface {
+    function getOrCreatePlayerId(address _plyAddr) external returns(uint256);
+    function getPlayerId(address _gameAddr, address _plyAddr) external view returns(uint256);
+    function getPlayerAddrById(address _gameAddr, uint256 _pid) external view returns(address);
+    function registerAffiliate(address _plyAddr, address _affAddr) external;
+    function hasAffiliate(address _plyAddr) external view returns(bool);
+    function getPlayerAmount(address _gameAddr) external view returns(uint256);
+}
+
 contract Sicbo is Pausable {
     using SafeMath for *;
 
@@ -30,7 +39,7 @@ contract Sicbo is Pausable {
     }
 
     struct GameInfo {
-        uint256 playerAmount;   //玩家总人数
+//        uint256 playerAmount;   //玩家总人数
         uint256 totalPotBig;
         uint256 totalPotSmall;
     }
@@ -49,11 +58,12 @@ contract Sicbo is Pausable {
     }
 
     DividendInterface private Dividend;   // Dividend contract
+    PlayerAffiliateInterface private PlayerAffiliate;   //PlayerAffiliate contract
 
     RoundInfo public currentRound;
     GameInfo public gameInfo;
-    address[] public playersIdAddress;  //pid => playerAddress
-    mapping(address => uint256) public playersAddressId;  //address => pid
+//    address[] public playersIdAddress;  //pid => playerAddress
+//    mapping(address => uint256) public playersAddressId;  //address => pid
     mapping(uint256 => RoundInfo) public roundsHistory;  //roundId => RoundInfo
     mapping(uint256 => RoundPot) public roundsPot;      //roundId => RoundPot
     mapping(uint256 => PlayerInfo) public playersInfo;  //pid => PlayerInfo
@@ -76,7 +86,8 @@ contract Sicbo is Pausable {
     }
 
     modifier validPlayer(address _plyAddr) {
-        uint256 pid_ = playersAddressId[_plyAddr];
+//        uint256 pid_ = playersAddressId[_plyAddr];
+        uint256 pid_ = getPlayerId(_plyAddr);
         require(pid_ != 0, 'not a valid player.');
         _;
     }
@@ -90,11 +101,24 @@ contract Sicbo is Pausable {
         _;
     }
 
-    constructor(address _dividendContract) public {
+    constructor(address _dividendContract, address _playerAffiliateContract) public {
         Dividend = DividendInterface(_dividendContract);
+        PlayerAffiliate = PlayerAffiliateInterface(_playerAffiliateContract);
 
         //填充pid0，不然第一个玩家需要第二次determine才生效
-        determinePid(address(0));
+//        determinePid(address(0));
+    }
+
+    function getPlayerId(address _plyAddr) public view returns(uint256) {
+        return PlayerAffiliate.getPlayerId(address(this), _plyAddr);
+    }
+
+    function getPlayerAddrById(uint256 _plyId) public view returns(address) {
+        return PlayerAffiliate.getPlayerAddrById(address(this), _plyId);
+    }
+
+    function getPlayerAmount() public view returns(uint256) {
+        return PlayerAffiliate.getPlayerAmount(address(this));
     }
 
     //bet with balance
@@ -106,7 +130,8 @@ contract Sicbo is Pausable {
         public
     {
         uint8 plyChoice_ = uint8(Choice(_choice));
-        uint256 pid_ = playersAddressId[msg.sender];
+//        uint256 pid_ = playersAddressId[msg.sender];
+        uint256 pid_ = getPlayerId(msg.sender);
         uint256 playerBalance_ = getPlayerTotalBalance(pid_);
         require(playerBalance_ >= _wager, 'not enough balance.');
 
@@ -136,7 +161,8 @@ contract Sicbo is Pausable {
         payable
     {
         uint8 plyChoice_ = uint8(Choice(_choice));
-        uint256 pid_ = determinePid(msg.sender);
+//        uint256 pid_ = determinePid(msg.sender);
+        uint256 pid_ = PlayerAffiliate.getOrCreatePlayerId(msg.sender);
         uint256 wager_ = msg.value;
 
         if (currentRound.roundId == 0 || currentRound.ended == true) {
@@ -155,16 +181,16 @@ contract Sicbo is Pausable {
         }
     }
 
-    function determinePid(address _addr) private returns(uint256) {
-        uint256 pid_ = playersAddressId[_addr];
-        if (pid_ == 0) {
-            uint256 plyId = (playersIdAddress.push(_addr)).sub(1);
-            playersAddressId[_addr] = plyId;
-            gameInfo.playerAmount++;
-            return plyId;
-        }
-        return pid_;
-    }
+//    function determinePid(address _addr) private returns(uint256) {
+//        uint256 pid_ = playersAddressId[_addr];
+//        if (pid_ == 0) {
+//            uint256 plyId = (playersIdAddress.push(_addr)).sub(1);
+//            playersAddressId[_addr] = plyId;
+//            gameInfo.playerAmount++;
+//            return plyId;
+//        }
+//        return pid_;
+//    }
 
     function initNewRound() private {
         RoundInfo memory roundInfo_;
@@ -277,7 +303,8 @@ contract Sicbo is Pausable {
 
             for (uint256 i; i < top20Player_.length; i++) {
                 uint256 pid_ = top20Player_[i];
-                top20PlayerAddr_[i] = playersIdAddress[pid_];
+//                top20PlayerAddr_[i] = playersIdAddress[pid_];
+                top20PlayerAddr_[i] = getPlayerAddrById(pid_);
                 top20PlayerWin_[i] = getPlayerRoundWin(pid_, _roundId);
             }
         }
@@ -401,7 +428,8 @@ contract Sicbo is Pausable {
         isHuman
         whenNotPaused
     {
-        uint256 pid_ = playersAddressId[msg.sender];
+//        uint256 pid_ = playersAddressId[msg.sender];
+        uint256 pid_ = getPlayerId(msg.sender);
         uint256 playerBalance_ = getPlayerTotalBalance(pid_);
         require(playerBalance_ > 0, 'not enough balance.');
 
@@ -429,7 +457,8 @@ contract Sicbo is Pausable {
             return 0;
 
         uint256 roundId = currentRound.roundId;
-        uint256 pid_ = playersAddressId[_plyAddr];
+//        uint256 pid_ = playersAddressId[_plyAddr];
+        uint256 pid_ = getPlayerId(_plyAddr);
         if (pid_ == 0)      //user not exists
             return 0;
 
