@@ -24,6 +24,14 @@ contract PlayerAffiliate is Ownable {
         _;
     }
 
+    modifier isHuman(address _addr) {
+        uint256 _codeLength;
+
+        assembly {_codeLength := extcodesize(_addr)}
+        require(_codeLength == 0, "sorry humans only");
+        _;
+    }
+
     function determinePID(uint256 _gameId, address _addr)
         private
         returns(bool)
@@ -40,6 +48,7 @@ contract PlayerAffiliate is Ownable {
     }
 
     function getOrCreatePlayerId(address _plyAddr)
+        isHuman(_plyAddr)
         isRegisteredGame(msg.sender)
         public
         returns(uint256)
@@ -101,9 +110,28 @@ contract PlayerAffiliate is Ownable {
         gameIds_[_addr] = 0;
     }
 
-    function registerAffiliate(address _plyAddr, address _affAddr)
+    function getOrRegisterAffiliate(address _plyAddr, address _affAddr)
         isRegisteredGame(msg.sender)
+        isHuman(_plyAddr)
+        isHuman(_affAddr)
         public
+        returns(address)
+    {
+        address plyAff_ = playerAffiliate_[_plyAddr];
+        uint256 gameId = gameIds_[msg.sender];
+
+        if (plyAff_ == address(0)) {
+            registerAffiliate(_plyAddr, _affAddr);
+            return _affAddr;
+        } else {
+            determinePID(gameId, _plyAddr);
+            determinePID(gameId, _affAddr);
+            return plyAff_;
+        }
+    }
+
+    function registerAffiliate(address _plyAddr, address _affAddr)
+        private
     {
         require(_plyAddr != _affAddr);
         require(playerAffiliate_[_plyAddr] == address(0), 'already registered affiliate.');
