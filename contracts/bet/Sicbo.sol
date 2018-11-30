@@ -124,6 +124,8 @@ contract Sicbo is Pausable {
         whenNotPaused
         public
     {
+        require(msg.sender != _affiliate);
+        
         uint256 pid_ = getPlayerId(msg.sender);
         require(getPlayerTotalBalance(pid_) >= _wager, 'not enough balance.');
 
@@ -161,6 +163,8 @@ contract Sicbo is Pausable {
         public
         payable
     {
+        require(msg.sender != _affiliate);
+
         uint256 pid_ = PlayerAffiliate.getOrCreatePlayerId(msg.sender);
         uint256 wager_ = msg.value;
         address payable plyAff_ = address(uint160(bytes20(PlayerAffiliate.getOrRegisterAffiliate(msg.sender, _affiliate))));
@@ -348,7 +352,7 @@ contract Sicbo is Pausable {
 //        } else {
 //            return 0;   //big
 //        }
-        return block.timestamp % 2;
+        return uint8(block.timestamp % 2);
     }
 
     //根据结果分配利润(记录奖池资金)
