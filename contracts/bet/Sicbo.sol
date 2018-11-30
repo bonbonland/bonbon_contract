@@ -144,6 +144,8 @@ contract Sicbo is Pausable {
             uint256 affiliateDistribution = _wager * affiliateDistributeRatio / 1000;
             plyAff_.transfer(affiliateDistribution);
 
+            //todo mine bbt
+
             playersInfo[pid_].rebetWager += _wager;
             _wager = _wager - BBTxDistribution - affiliateDistribution;
             betAction(pid_, uint8(Choice(_choice)), _wager);
@@ -177,6 +179,8 @@ contract Sicbo is Pausable {
             //affiliate dividend
             uint256 affiliateDistribution = wager_ * affiliateDistributeRatio / 1000;
             plyAff_.transfer(affiliateDistribution);
+
+            //todo mine bbt
 
             wager_ = wager_ - BBTxDistribution - affiliateDistribution;
             betAction(pid_, uint8(Choice(_choice)), wager_);
@@ -336,14 +340,15 @@ contract Sicbo is Pausable {
 
     //开大小
     function roll() private view returns(uint8) {
-        bytes32 lastBlockHash = blockhash(block.number - 1);
-        bytes1 lastByte = lastBlockHash[lastBlockHash.length -1];
-        uint8 lastNum = uint8(lastByte & bytes1(0x0f));
-        if (lastNum <= 7) {
-            return 1;   //small
-        } else {
-            return 0;   //big
-        }
+//        bytes32 lastBlockHash = blockhash(block.number - 1);
+//        bytes1 lastByte = lastBlockHash[lastBlockHash.length -1];
+//        uint8 lastNum = uint8(lastByte & bytes1(0x0f));
+//        if (lastNum <= 7) {
+//            return 1;   //small
+//        } else {
+//            return 0;   //big
+//        }
+        return block.timestamp % 2;
     }
 
     //根据结果分配利润(记录奖池资金)
