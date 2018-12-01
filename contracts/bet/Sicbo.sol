@@ -19,6 +19,10 @@ interface PlayerAffiliateInterface {
     function getOrRegisterAffiliate(address _plyAddr, address _affAddr) external returns(address);
 }
 
+interface BBTxInterface {
+    function mine(address _to, uint256 _amount) external returns(bool);
+}
+
 contract Sicbo is Pausable {
     using SafeMath for *;
 
@@ -60,6 +64,7 @@ contract Sicbo is Pausable {
 
     DividendInterface private Dividend;   // Dividend contract
     PlayerAffiliateInterface private PlayerAffiliate;   //PlayerAffiliate contract
+    BBTxInterface private BBT;  //BBT contract
 
     RoundInfo public currentRound;
     GameInfo public gameInfo;
@@ -78,6 +83,7 @@ contract Sicbo is Pausable {
     uint256 public roundDuration = 1 minutes;   //todo 待调整
     uint256 public BBTxDistributeRatio = 32;    //32 / 1000
     uint256 public affiliateDistributeRatio = 8;    //8 / 1000
+    uint256 public mineBBTxRatio = 10;    // 1 eth => 10bbt   //todo 待调整
 
     modifier fitMinimalWager(uint256 _wager) {
         require(_wager >= minimalWager, 'minimal wager not fit.');
@@ -98,9 +104,10 @@ contract Sicbo is Pausable {
         _;
     }
 
-    constructor(address _dividendContract, address _playerAffiliateContract) public {
+    constructor(address _dividendContract, address _playerAffiliateContract, address _bbtContract) public {
         Dividend = DividendInterface(_dividendContract);
         PlayerAffiliate = PlayerAffiliateInterface(_playerAffiliateContract);
+        BBT = BBTxInterface(_bbtContract);
     }
 
     function getPlayerId(address _plyAddr) public view returns(uint256) {
@@ -125,11 +132,12 @@ contract Sicbo is Pausable {
         public
     {
         require(msg.sender != _affiliate);
-        
+
         uint256 pid_ = getPlayerId(msg.sender);
         require(getPlayerTotalBalance(pid_) >= _wager, 'not enough balance.');
 
-        address payable plyAff_ = address(uint160(bytes20(PlayerAffiliate.getOrRegisterAffiliate(msg.sender, _affiliate))));
+//        address payable plyAff_ = address(uint160(bytes20(PlayerAffiliate.getOrRegisterAffiliate(msg.sender, _affiliate))));
+        address plyAff_ = PlayerAffiliate.getOrRegisterAffiliate(msg.sender, _affiliate);
 
         if (currentRound.roundId == 0 || currentRound.ended == true) {
             initNewRound();
@@ -146,7 +154,8 @@ contract Sicbo is Pausable {
             uint256 affiliateDistribution = _wager * affiliateDistributeRatio / 1000;
             plyAff_.transfer(affiliateDistribution);
 
-            //todo mine bbt
+            //mine bbt
+            mineBBT(msg.sender, _wager * mineBBTxRatio);
 
             playersInfo[pid_].rebetWager += _wager;
             _wager = _wager - BBTxDistribution - affiliateDistribution;
@@ -167,7 +176,7 @@ contract Sicbo is Pausable {
 
         uint256 pid_ = PlayerAffiliate.getOrCreatePlayerId(msg.sender);
         uint256 wager_ = msg.value;
-        address payable plyAff_ = address(uint160(bytes20(PlayerAffiliate.getOrRegisterAffiliate(msg.sender, _affiliate))));
+        address plyAff_ = PlayerAffiliate.getOrRegisterAffiliate(msg.sender, _affiliate);
 
         if (currentRound.roundId == 0 || currentRound.ended == true) {
             initNewRound();
@@ -184,11 +193,16 @@ contract Sicbo is Pausable {
             uint256 affiliateDistribution = wager_ * affiliateDistributeRatio / 1000;
             plyAff_.transfer(affiliateDistribution);
 
-            //todo mine bbt
+            //mine bbt
+            mineBBT(msg.sender, wager_ * mineBBTxRatio);
 
             wager_ = wager_ - BBTxDistribution - affiliateDistribution;
             betAction(pid_, uint8(Choice(_choice)), wager_);
         }
+    }
+
+    function mineBBT(address _to, uint256 _amount) private returns(bool) {
+        return BBT.mine(_to, _amount);
     }
 
     function initNewRound() private {
