@@ -37,6 +37,7 @@ contract Sicbo is Pausable {
         uint8 result;
         uint256 potBig;
         uint256 potSmall;
+        uint256 blockId;
     }
 
     struct RoundPot {           //每一轮的奖池（扣除团队和bbt分红之后的玩家奖池）
@@ -76,7 +77,7 @@ contract Sicbo is Pausable {
     mapping(uint256 => uint256[20]) public top20PlayerSmall;  // roundId => index => pid
 
     event Bet(uint256 indexed roundId, address indexed player, uint8 indexed choice, uint256 wager);
-    event EndRound(uint256 indexed roundId, uint8 result, address player, uint256 time);
+    event EndRound(uint256 indexed roundId, uint8 result, address player, uint256 time, uint256 blockId);
     event Withdraw(address indexed player, uint256 amount);
 
     uint256 public minimalWager = 0.005 ether;   //todo 待调整
@@ -227,11 +228,12 @@ contract Sicbo is Pausable {
         //结束currentRound
         currentRound.ended = true;
         currentRound.result = result_;
+        currentRound.blockId = block.number;
 
         //记录roundsHistory
         roundsHistory[currentRound.roundId] = currentRound;
 
-        emit EndRound(currentRound.roundId, currentRound.result, msg.sender, now);
+        emit EndRound(currentRound.roundId, currentRound.result, msg.sender, now, block.number);
     }
 
     function betAction(uint256 _pid, uint8 _choice, uint256 _wager) private {
@@ -366,7 +368,11 @@ contract Sicbo is Pausable {
 //        } else {
 //            return 0;   //big
 //        }
-        return uint8(block.timestamp % 2);
+        if (uint8(block.timestamp % 10) >= 5) {
+            return uint8(0);
+        } else {
+            return uint8(1);
+        }
     }
 
     //根据结果分配利润(记录奖池资金)
