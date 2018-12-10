@@ -1,11 +1,16 @@
 pragma solidity ^0.4.24;
 
 import "openzeppelin-solidity/contracts/ownership/Ownable.sol";
+import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 contract PlayerAffiliate is Ownable {
+    using SafeMath for *;
+
     uint256 public gameCount_;
     mapping (uint256 => uint256) public playerCount_;  //gameId => playerCount
     mapping (address => address) public playerAffiliate_;   //player => player's affiliate
+    mapping (address => uint256) public affiliateWithdrew_;    // affAddr => withdrewEth
+    mapping (address => uint256) public affiliateProfit_;  // affAddr => totalProfit
     mapping (uint256 => mapping(uint256 => address)) public players_;   //gameId => playerId => playerAddr
     mapping (uint256 => mapping(address => uint256)) public playerIds_;    //gameId => playerAddr => playerId;
     mapping (uint256 => address) public games_;    //gameId => gameAddress
@@ -168,5 +173,35 @@ contract PlayerAffiliate is Ownable {
         uint256 gameId = gameIds_[_gameAddr];
         address affAddr = playerAffiliate_[_plyAddr];
         return playerIds_[gameId][affAddr];
+    }
+
+    function depositShare(address _plyAddr)
+        isRegisteredGame(msg.sender)
+        isHuman(_plyAddr)
+        public
+        payable
+        returns(bool)
+    {
+        affiliateProfit_[_plyAddr] = (affiliateProfit_[_plyAddr]).add(msg.value);
+        return true;
+    }
+
+    function getPlayerLeftProfit(address _plyAddr)
+        public
+        view
+        returns(uint256)
+    {
+        return (affiliateProfit_[_plyAddr]).sub(affiliateWithdrew_[_plyAddr]);
+    }
+
+    function withdrawShare()
+        isHuman(msg.sender)
+        public
+    {
+        uint256 plyLeftProfit = getPlayerLeftProfit(msg.sender);
+        require(plyLeftProfit > 0);
+
+        affiliateWithdrew_[msg.sender] = (affiliateWithdrew_[msg.sender]).add(plyLeftProfit);
+        (msg.sender).transfer(plyLeftProfit);
     }
 }

@@ -17,6 +17,7 @@ interface PlayerAffiliateInterface {
     function getPlayerAmount(address _gameAddr) external view returns(uint256);
     function playerAffiliate_(address _plyAddr) external view returns(address);
     function getOrRegisterAffiliate(address _plyAddr, address _affAddr) external returns(address);
+    function depositShare(address _plyAddr) external payable returns(bool);
 }
 
 interface BBTxInterface {
@@ -153,7 +154,7 @@ contract Sicbo is Pausable {
 
             //affiliate dividend
             uint256 affiliateDistribution = _wager * affiliateDistributeRatio / 1000;
-            plyAff_.transfer(affiliateDistribution);
+            PlayerAffiliate.depositShare.value(affiliateDistribution)(plyAff_);
 
             //mine bbt
             mineBBT(msg.sender, _wager * mineBBTxRatio);
@@ -192,7 +193,7 @@ contract Sicbo is Pausable {
 
             //affiliate dividend
             uint256 affiliateDistribution = wager_ * affiliateDistributeRatio / 1000;
-            plyAff_.transfer(affiliateDistribution);
+            PlayerAffiliate.depositShare.value(affiliateDistribution)(plyAff_);
 
             //mine bbt
             mineBBT(msg.sender, wager_ * mineBBTxRatio);
@@ -464,31 +465,4 @@ contract Sicbo is Pausable {
             return now - currentRound.startTime;
         }
     }
-
-    //计算当前轮的玩家收益
-    //    function calculateProfit(address _plyAddr, uint8 _choice) public view returns(uint256) {
-    //        uint8 plyChoice_ = uint8(Choice(_choice));
-    //
-    //        if (currentRound.ended) //current round is end
-    //            return 0;
-    //
-    //        uint256 roundId = currentRound.roundId;
-    //        uint256 pid_ = getPlayerId(_plyAddr);
-    //        if (pid_ == 0)      //user not exists
-    //            return 0;
-    //
-    //        PlayerBetInfo[] storage playerBetInfo_ = playersBetInfo[roundId][pid_];
-    //        if (playerBetInfo_.length == 0)  //not betting on current round
-    //            return 0;
-    //
-    //        uint256 winnerPot = plyChoice_ == 0 ? currentRound.potBig : currentRound.potSmall;
-    //        uint256 loserPot = plyChoice_ == 0 ? currentRound.potSmall : currentRound.potBig;
-    //
-    //        if (winnerPot == 0 || loserPot == 0) {  //when all betting on one side, the wager will return, no winner.
-    //            return 0;
-    //        }
-    //
-    //        //这里必须要先乘后除不然,顺序反了精度会出问题
-    //        return getPlayerRoundWager(currentRound.roundId, pid_, _choice) * loserPot / winnerPot;
-    //    }
 }
