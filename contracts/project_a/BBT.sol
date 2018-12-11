@@ -2,7 +2,7 @@ pragma solidity ^0.4.24;
 
 import 'openzeppelin-solidity/contracts/token/ERC20/BurnableToken.sol';
 import 'openzeppelin-solidity/contracts/token/ERC20/PausableToken.sol';
-import 'openzeppelin-solidity/contracts/access/Whitelist.sol';
+import './Whitelist.sol';
 import './SnapshotToken.sol';
 
 contract BBT is BurnableToken, PausableToken, SnapshotToken, Whitelist {
