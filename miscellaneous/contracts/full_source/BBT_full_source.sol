@@ -479,17 +479,24 @@ library ArrayUtils {
 }
 
 contract Whitelist is Ownable {
-    mapping (address => bool) public whitelist;
+    struct WhitelistInfo {
+        bool inWhitelist;
+        uint256 index;  //index in whitelistAddress
+        uint256 time;   //timestamp when added to whitelist
+    }
 
-    event AddWhitelist(address indexed operator);
-    event RemoveWhitelist(address indexed operator);
+    mapping (address => WhitelistInfo) public whitelist;
+    address[] public whitelistAddresses;
+
+    event AddWhitelist(address indexed operator, uint256 indexInWhitelist);
+    event RemoveWhitelist(address indexed operator, uint256 indexInWhitelist);
 
     /**
     * @dev Throws if operator is not whitelisted.
     * @param _operator address
     */
     modifier onlyIfWhitelisted(address _operator) {
-        require(whitelist[_operator] == true, "not whitelisted.");
+        require(inWhitelist(_operator) == true, "not whitelisted.");
         _;
     }
 
@@ -503,9 +510,16 @@ contract Whitelist is Ownable {
         onlyOwner
         returns(bool)
     {
-        if (whitelist[_operator] == false) {
-            whitelist[_operator] = true;
-            emit AddWhitelist(_operator);
+        WhitelistInfo storage whitelistInfo_ = whitelist[_operator];
+
+        if (inWhitelist(_operator) == false) {
+            whitelistAddresses.push(_operator);
+
+            whitelistInfo_.inWhitelist = true;
+            whitelistInfo_.time = block.timestamp;
+            whitelistInfo_.index = whitelistAddresses.length-1;
+
+            emit AddWhitelist(_operator, whitelistAddresses.length-1);
             return true;
         } else {
             return false;
@@ -515,8 +529,6 @@ contract Whitelist is Ownable {
     /**
      * @dev add addresses to the whitelist
      * @param _operators addresses
-     * @return true if at least one address was added to the whitelist,
-     * false if all addresses were already in the whitelist
      */
     function addAddressesToWhitelist(address[] _operators)
         public
@@ -538,20 +550,32 @@ contract Whitelist is Ownable {
         onlyOwner
         returns(bool)
     {
-        if (whitelist[_operator] == true) {
-            whitelist[_operator] = false;
-            emit RemoveWhitelist(_operator);
+        if (inWhitelist(_operator) == true) {
+            uint256 whitelistIndex_ = whitelist[_operator].index;
+            removeItemFromWhitelistAddresses(whitelistIndex_);
+            whitelist[_operator] = WhitelistInfo(false, 0, 0);
+
+            emit RemoveWhitelist(_operator, whitelistIndex_);
             return true;
         } else {
             return false;
         }
     }
 
+    function removeItemFromWhitelistAddresses(uint256 _index) private {
+        address lastWhitelistAddr = whitelistAddresses[whitelistAddresses.length-1];
+        WhitelistInfo storage lastWhitelistInfo = whitelist[lastWhitelistAddr];
+
+        //move last whitelist to the deleted slot
+        whitelistAddresses[_index] = whitelistAddresses[whitelistAddresses.length-1];
+        lastWhitelistInfo.index = _index;
+        delete whitelistAddresses[whitelistAddresses.length-1];
+        whitelistAddresses.length--;
+    }
+
     /**
      * @dev remove addresses from the whitelist
      * @param _operators addresses
-     * @return true if at least one address was removed from the whitelist,
-     * false if all addresses weren't in the whitelist in the first place
      */
     function removeAddressesFromWhitelist(address[] _operators)
         public
@@ -571,7 +595,19 @@ contract Whitelist is Ownable {
         view
         returns(bool)
     {
-        return whitelist[_operator];
+        return whitelist[_operator].inWhitelist;
+    }
+
+    function getWhitelistCount() public view returns(uint256) {
+        return whitelistAddresses.length;
+    }
+
+    function getAllWhitelist() public view returns(address[]) {
+        address[] memory allWhitelist = new address[](whitelistAddresses.length);
+        for (uint256 i = 0; i < whitelistAddresses.length; i++) {
+            allWhitelist[i] = whitelistAddresses[i];
+        }
+        return allWhitelist;
     }
 }
 

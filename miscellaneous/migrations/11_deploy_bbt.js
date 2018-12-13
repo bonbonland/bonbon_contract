@@ -1,7 +1,7 @@
 const web3 = require('web3')
 const BBT = artifacts.require('./project_a/BBT.sol')
 const config = require('../tools/config.js')
-const teamWalletAddress = config.envConfig.BBT_TEAM_WALLET //accountC
+const teamWalletAddress = config.envConfig.BBT_TEAM_WALLET
 
 module.exports = function (deployer, network , accounts) {
   let run = async function () {
