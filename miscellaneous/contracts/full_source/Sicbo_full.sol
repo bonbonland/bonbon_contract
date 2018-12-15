@@ -230,7 +230,7 @@ contract Sicbo is Pausable {
     uint256 public roundDuration = 1 minutes;   //todo 待调整
     uint256 public BBTxDistributeRatio = 32;    //32 / 1000
     uint256 public affiliateDistributeRatio = 8;    //8 / 1000
-    uint256 public mineBBTxRatio = 10;    // 1 eth => 10bbt   //todo 待调整
+    uint256 public mineBBTxRatio = 100;    // 1 eth => 10bbt   //todo 待调整
 
     modifier fitMinimalWager(uint256 _wager) {
         require(_wager >= minimalWager, 'minimal wager not fit.');

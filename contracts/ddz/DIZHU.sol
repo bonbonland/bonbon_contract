@@ -184,17 +184,19 @@ contract modularBBT is BBTevents {}
 
 contract DIZHU is modularBBT, Ownable {
     using SafeMath for *;
-    using NameFilter for string;
     using BBTKeysCalcLong for uint256;
     
-    address constant private BBTAddress = 0x20aAc60C7f52D062f703AAE653BB931647c4f572;
-    PlayerBookInterface private PlayerBook;
+//    address constant private BBTAddress = 0x20aAc60C7f52D062f703AAE653BB931647c4f572;
+    BBTxInterface private BBT;  //BBT contract
+    PlayerAffiliateInterface private PlayerAffiliate;
+    DividendInterface private Dividend;   // Dividend contract
+
 //==============================================================================
 //     _ _  _  |`. _     _ _ |_ | _  _  .
 //    (_(_)| |~|~|(_||_|| (_||_)|(/__\  .  (game settings)
 //=================_|===========================================================
-    string constant public name = "LandOwner VS Peasant";
-    string constant public symbol = "Land";
+    string constant public name = "Fight the Landlord";
+    string constant public symbol = "DDZ";
     uint256 constant private rndGap_ = 0 minutes;         // length of ICO phase, set to 1 year for EOS.
     uint256 constant private rndInit_ = 30 minutes;                // round timer starts at this
     uint256 constant private rndInc_ = 1 minutes;              // every full key purchased adds this much to the timer
@@ -210,10 +212,10 @@ contract DIZHU is modularBBT, Ownable {
 // PLAYER DATA 
 //****************
     mapping (address => uint256) public pIDxAddr_;          // (addr => pID) returns player id by address
-    mapping (bytes32 => uint256) public pIDxName_;          // (name => pID) returns player id by name
+//    mapping (bytes32 => uint256) public pIDxName_;          // (name => pID) returns player id by name
     mapping (uint256 => BBTdatasets.Player) public plyr_;   // (pID => data) player data
     mapping (uint256 => mapping (uint256 => BBTdatasets.PlayerRounds)) public plyrRnds_;    // (pID => rID => data) player round data by player id & round id
-    mapping (uint256 => mapping (bytes32 => bool)) public plyrNames_; // (pID => name => bool) list of names a player owns.  (used so you can change your display name amongst any name you own)
+//    mapping (uint256 => mapping (bytes32 => bool)) public plyrNames_; // (pID => name => bool) list of names a player owns.  (used so you can change your display name amongst any name you own)
 //****************
 // ROUND DATA 
 //****************
@@ -228,7 +230,7 @@ contract DIZHU is modularBBT, Ownable {
 //     _ _  _  __|_ _    __|_ _  _  .
 //    (_(_)| |_\ | | |_|(_ | (_)|   .  (initial data setup upon contract deploy)
 //==============================================================================
-    constructor(address _playerBookAddr)
+    constructor(address _dividendAddr, address _BBTxAddr, address _playerAffiliateAddr)
         public
     {
         // Team allocation structures
@@ -238,15 +240,17 @@ contract DIZHU is modularBBT, Ownable {
         // Team allocation percentages
         // (KEY, BBT) + (Pot , Referrals, Community)
             // Referrals / Community rewards are mathematically designed to come from the winner's share of the pot.
-        fees_[0] = BBTdatasets.TeamFee(45,20);   //15% to pot, 10% to aff,  10% to air drop pot
-        fees_[1] = BBTdatasets.TeamFee(15,20);   //45% to pot, 10% to aff,  10% to air drop pot
+        fees_[0] = BBTdatasets.TeamFee(15, 55);   //15% to pot, 10% to aff,  10% to air drop pot
+        fees_[1] = BBTdatasets.TeamFee(45, 25);   //45% to pot, 10% to aff,  10% to air drop pot
         
         // how to split up the final pot based on which team was picked
         // (KEY, BBT)
-        potSplit_[0] = BBTdatasets.PotSplit(30,10);  //50% to winner, 10% to next round, 
-        potSplit_[1] = BBTdatasets.PotSplit(10,10);   //50% to winner, 30% to next round,
+        potSplit_[0] = BBTdatasets.PotSplit(10, 35);  //50% to winner, 10% to next round, 35% to land holder, 5% to bbt holder
+        potSplit_[1] = BBTdatasets.PotSplit(30, 15);  //50% to winner, 30% to next round, 15% to land holder, 5% to bbt holder
 
-        PlayerBook = PlayerBookInterface(_playerBookAddr);
+        Dividend = DividendInterface(_dividendAddr);
+        BBT = BBTxInterface(_BBTxAddr);
+        PlayerAffiliate = PlayerAffiliateInterface(_playerAffiliateAddr);
     }
 //==============================================================================
 //     _ _  _  _|. |`. _  _ _  .
@@ -300,7 +304,8 @@ contract DIZHU is modularBBT, Ownable {
         BBTdatasets.EventReturns memory _eventData_ = determinePID(_eventData_);
             
         // fetch player id
-        uint256 _pID = pIDxAddr_[msg.sender];
+//        uint256 _pID = pIDxAddr_[msg.sender];
+        uint256 _pID = PlayerAffiliate.getOrCreatePlayerId(msg.sender);
         
         // buy core 
         buyCore(_pID, plyr_[_pID].laff, 0, _eventData_);
@@ -347,88 +352,6 @@ contract DIZHU is modularBBT, Ownable {
         buyCore(_pID, _affCode, _team, _eventData_);
     }
     
-    function buyXaddr(address _affCode, uint256 _team)
-        isActivated()
-        isHuman()
-        isWithinLimits(msg.value)
-        public
-        payable
-    {
-        // set up our tx event data and determine if player is new or not
-        BBTdatasets.EventReturns memory _eventData_ = determinePID(_eventData_);
-        
-        // fetch player id
-        uint256 _pID = pIDxAddr_[msg.sender];
-        
-        // manage affiliate residuals
-        uint256 _affID;
-        // if no affiliate code was given or player tried to use their own, lolz
-        if (_affCode == address(0) || _affCode == msg.sender)
-        {
-            // use last stored affiliate code
-            _affID = plyr_[_pID].laff;
-        
-        // if affiliate code was given    
-        } else {
-            // get affiliate ID from aff Code 
-            _affID = pIDxAddr_[_affCode];
-            
-            // if affID is not the same as previously stored 
-            if (_affID != plyr_[_pID].laff)
-            {
-                // update last affiliate
-                plyr_[_pID].laff = _affID;
-            }
-        }
-        
-        // verify a valid team was selected
-        _team = verifyTeam(_team);
-        
-        // buy core 
-        buyCore(_pID, _affID, _team, _eventData_);
-    }
-    
-    function buyXname(bytes32 _affCode, uint256 _team)
-        isActivated()
-        isHuman()
-        isWithinLimits(msg.value)
-        public
-        payable
-    {
-        // set up our tx event data and determine if player is new or not
-        BBTdatasets.EventReturns memory _eventData_ = determinePID(_eventData_);
-        
-        // fetch player id
-        uint256 _pID = pIDxAddr_[msg.sender];
-        
-        // manage affiliate residuals
-        uint256 _affID;
-        // if no affiliate code was given or player tried to use their own, lolz
-        if (_affCode == '' || _affCode == plyr_[_pID].name)
-        {
-            // use last stored affiliate code
-            _affID = plyr_[_pID].laff;
-        
-        // if affiliate code was given
-        } else {
-            // get affiliate ID from aff Code
-            _affID = pIDxName_[_affCode];
-            
-            // if affID is not the same as previously stored
-            if (_affID != plyr_[_pID].laff)
-            {
-                // update last affiliate
-                plyr_[_pID].laff = _affID;
-            }
-        }
-        
-        // verify a valid team was selected
-        _team = verifyTeam(_team);
-        
-        // buy core 
-        buyCore(_pID, _affID, _team, _eventData_);
-    }
-    
     /**
      * @dev essentially the same as buy, but instead of you sending ether 
      * from your wallet, it uses your unwithdrawn earnings.
@@ -469,86 +392,6 @@ contract DIZHU is modularBBT, Ownable {
 
         // reload core
         reLoadCore(_pID, _affCode, _team, _eth, _eventData_);
-    }
-    
-    function reLoadXaddr(address _affCode, uint256 _team, uint256 _eth)
-        isActivated()
-        isHuman()
-        isWithinLimits(_eth)
-        public
-    {
-        // set up our tx event data
-        BBTdatasets.EventReturns memory _eventData_;
-        
-        // fetch player ID
-        uint256 _pID = pIDxAddr_[msg.sender];
-        
-        // manage affiliate residuals
-        uint256 _affID;
-        // if no affiliate code was given or player tried to use their own, lolz
-        if (_affCode == address(0) || _affCode == msg.sender)
-        {
-            // use last stored affiliate code
-            _affID = plyr_[_pID].laff;
-        
-        // if affiliate code was given    
-        } else {
-            // get affiliate ID from aff Code 
-            _affID = pIDxAddr_[_affCode];
-            
-            // if affID is not the same as previously stored 
-            if (_affID != plyr_[_pID].laff)
-            {
-                // update last affiliate
-                plyr_[_pID].laff = _affID;
-            }
-        }
-        
-        // verify a valid team was selected
-        _team = verifyTeam(_team);
-        
-        // reload core
-        reLoadCore(_pID, _affID, _team, _eth, _eventData_);
-    }
-    
-    function reLoadXname(bytes32 _affCode, uint256 _team, uint256 _eth)
-        isActivated()
-        isHuman()
-        isWithinLimits(_eth)
-        public
-    {
-        // set up our tx event data
-        BBTdatasets.EventReturns memory _eventData_;
-        
-        // fetch player ID
-        uint256 _pID = pIDxAddr_[msg.sender];
-        
-        // manage affiliate residuals
-        uint256 _affID;
-        // if no affiliate code was given or player tried to use their own, lolz
-        if (_affCode == '' || _affCode == plyr_[_pID].name)
-        {
-            // use last stored affiliate code
-            _affID = plyr_[_pID].laff;
-        
-        // if affiliate code was given
-        } else {
-            // get affiliate ID from aff Code
-            _affID = pIDxName_[_affCode];
-            
-            // if affID is not the same as previously stored
-            if (_affID != plyr_[_pID].laff)
-            {
-                // update last affiliate
-                plyr_[_pID].laff = _affID;
-            }
-        }
-        
-        // verify a valid team was selected
-        _team = verifyTeam(_team);
-        
-        // reload core
-        reLoadCore(_pID, _affID, _team, _eth, _eventData_);
     }
 
     /**
@@ -622,78 +465,7 @@ contract DIZHU is modularBBT, Ownable {
             emit BBTevents.onWithdraw(_pID, msg.sender, plyr_[_pID].name, _eth, _now);
         }
     }
-    
-    /**
-     * @dev use these to register names.  they are just wrappers that will send the
-     * registration requests to the PlayerBook contract.  So registering here is the 
-     * same as registering there.  UI will always display the last name you registered.
-     * but you will still own all previously registered names to use as affiliate 
-     * links.
-     * - must pay a registration fee.
-     * - name must be unique
-     * - names will be converted to lowercase
-     * - name cannot start or end with a space 
-     * - cannot have more than 1 space in a row
-     * - cannot be only numbers
-     * - cannot start with 0x 
-     * - name must be at least 1 char
-     * - max length of 32 characters long
-     * - allowed characters: a-z, 0-9, and space
-     * -functionhash- 0x921dec21 (using ID for affiliate)
-     * -functionhash- 0x3ddd4698 (using address for affiliate)
-     * -functionhash- 0x685ffd83 (using name for affiliate)
-     * @param _nameString players desired name
-     * @param _affCode affiliate ID, address, or name of who referred you
-     * @param _all set to true if you want this to push your info to all games 
-     * (this might cost a lot of gas)
-     */
-    function registerNameXID(string _nameString, uint256 _affCode, bool _all)
-        isHuman()
-        public
-        payable
-    {
-        bytes32 _name = _nameString.nameFilter();
-        address _addr = msg.sender;
-        uint256 _paid = msg.value;
-        (bool _isNewPlayer, uint256 _affID) = PlayerBook.registerNameXIDFromDapp.value(_paid)(_addr, _name, _affCode, _all);
-        
-        uint256 _pID = pIDxAddr_[_addr];
-        
-        // fire event
-        emit BBTevents.onNewName(_pID, _addr, _name, _isNewPlayer, _affID, plyr_[_affID].addr, plyr_[_affID].name, _paid, now);
-    }
-    
-    function registerNameXaddr(string _nameString, address _affCode, bool _all)
-        isHuman()
-        public
-        payable
-    {
-        bytes32 _name = _nameString.nameFilter();
-        address _addr = msg.sender;
-        uint256 _paid = msg.value;
-        (bool _isNewPlayer, uint256 _affID) = PlayerBook.registerNameXaddrFromDapp.value(msg.value)(msg.sender, _name, _affCode, _all);
-        
-        uint256 _pID = pIDxAddr_[_addr];
-        
-        // fire event
-        emit BBTevents.onNewName(_pID, _addr, _name, _isNewPlayer, _affID, plyr_[_affID].addr, plyr_[_affID].name, _paid, now);
-    }
-    
-    function registerNameXname(string _nameString, bytes32 _affCode, bool _all)
-        isHuman()
-        public
-        payable
-    {
-        bytes32 _name = _nameString.nameFilter();
-        address _addr = msg.sender;
-        uint256 _paid = msg.value;
-        (bool _isNewPlayer, uint256 _affID) = PlayerBook.registerNameXnameFromDapp.value(msg.value)(msg.sender, _name, _affCode, _all);
-        
-        uint256 _pID = pIDxAddr_[_addr];
-        
-        // fire event
-        emit BBTevents.onNewName(_pID, _addr, _name, _isNewPlayer, _affID, plyr_[_affID].addr, plyr_[_affID].name, _paid, now);
-    }
+
 //==============================================================================
 //     _  _ _|__|_ _  _ _  .
 //    (_|(/_ |  | (/_| _\  . (for UI & viewing things on etherscan)
@@ -1168,41 +940,6 @@ contract DIZHU is modularBBT, Ownable {
         else // rounds over.  need price for new round
             return ( (_keys).eth() );
     }
-//==============================================================================
-//    _|_ _  _ | _  .
-//     | (_)(_)|_\  .
-//==============================================================================
-    /**
-     * @dev receives name/player info from names contract 
-     */
-    function receivePlayerInfo(uint256 _pID, address _addr, bytes32 _name, uint256 _laff)
-        external
-    {
-        require (msg.sender == address(PlayerBook), "your not playerNames contract... hmmm..");
-        if (pIDxAddr_[_addr] != _pID)
-            pIDxAddr_[_addr] = _pID;
-        if (pIDxName_[_name] != _pID)
-            pIDxName_[_name] = _pID;
-        if (plyr_[_pID].addr != _addr)
-            plyr_[_pID].addr = _addr;
-        if (plyr_[_pID].name != _name)
-            plyr_[_pID].name = _name;
-        if (plyr_[_pID].laff != _laff)
-            plyr_[_pID].laff = _laff;
-        if (plyrNames_[_pID][_name] == false)
-            plyrNames_[_pID][_name] = true;
-    }
-    
-    /**
-     * @dev receives entire player name list 
-     */
-    function receivePlayerNameList(uint256 _pID, bytes32 _name)
-        external
-    {
-        require (msg.sender == address(PlayerBook), "your not playerNames contract... hmmm..");
-        if(plyrNames_[_pID][_name] == false)
-            plyrNames_[_pID][_name] = true;
-    }   
         
     /**
      * @dev gets existing or registers new pID.  use this when a player may be new
@@ -1218,19 +955,19 @@ contract DIZHU is modularBBT, Ownable {
         {
             // grab their player ID, name and last aff ID, from player names contract 
             _pID = PlayerBook.getPlayerID(msg.sender);
-            bytes32 _name = PlayerBook.getPlayerName(_pID);
+//            bytes32 _name = PlayerBook.getPlayerName(_pID);
             uint256 _laff = PlayerBook.getPlayerLAff(_pID);
             
             // set up player account 
             pIDxAddr_[msg.sender] = _pID;
             plyr_[_pID].addr = msg.sender;
             
-            if (_name != "")
-            {
-                pIDxName_[_name] = _pID;
-                plyr_[_pID].name = _name;
-                plyrNames_[_pID][_name] = true;
-            }
+//            if (_name != "")
+//            {
+//                pIDxName_[_name] = _pID;
+//                plyr_[_pID].name = _name;
+//                plyrNames_[_pID][_name] = true;
+//            }
             
             if (_laff != 0 && _laff != _pID)
                 plyr_[_pID].laff = _laff;
@@ -1576,17 +1313,6 @@ contract DIZHU is modularBBT, Ownable {
         onlyOwner
         public
     {
-        // only team just can activate 
-//        require(
-//            msg.sender == 0xFe3701b3071a28CC0d23b46A1d3e722E10A5a8f8 ||
-//            msg.sender == 0xFe3701b3071a28CC0d23b46A1d3e722E10A5a8f8 ||
-//            msg.sender == 0xFe3701b3071a28CC0d23b46A1d3e722E10A5a8f8 ||
-//            msg.sender == 0xFe3701b3071a28CC0d23b46A1d3e722E10A5a8f8 ||
-//            msg.sender == 0xFe3701b3071a28CC0d23b46A1d3e722E10A5a8f8,
-//            "only team just can activate"
-//        );
-
-        
         // can only be ran once
         require(activated_ == false, "DIZHU already activated");
         
@@ -1735,95 +1461,6 @@ library BBTKeysCalcLong {
     }
 }
 
-
-interface PlayerBookInterface {
-    function getPlayerID(address _addr) external returns (uint256);
-    function getPlayerName(uint256 _pID) external view returns (bytes32);
-    function getPlayerLAff(uint256 _pID) external view returns (uint256);
-    function getPlayerAddr(uint256 _pID) external view returns (address);
-    function getNameFee() external view returns (uint256);
-    function registerNameXIDFromDapp(address _addr, bytes32 _name, uint256 _affCode, bool _all) external payable returns(bool, uint256);
-    function registerNameXaddrFromDapp(address _addr, bytes32 _name, address _affCode, bool _all) external payable returns(bool, uint256);
-    function registerNameXnameFromDapp(address _addr, bytes32 _name, bytes32 _affCode, bool _all) external payable returns(bool, uint256);
-}
-
-
-library NameFilter {
-    /**
-     * @dev filters name strings
-     * -converts uppercase to lower case.  
-     * -makes sure it does not start/end with a space
-     * -makes sure it does not contain multiple spaces in a row
-     * -cannot be only numbers
-     * -cannot start with 0x 
-     * -restricts characters to A-Z, a-z, 0-9, and space.
-     * @return reprocessed string in bytes32 format
-     */
-    function nameFilter(string _input)
-        internal
-        pure
-        returns(bytes32)
-    {
-        bytes memory _temp = bytes(_input);
-        uint256 _length = _temp.length;
-        
-        //sorry limited to 32 characters
-        require (_length <= 32 && _length > 0, "string must be between 1 and 32 characters");
-        // make sure it doesnt start with or end with space
-        require(_temp[0] != 0x20 && _temp[_length-1] != 0x20, "string cannot start or end with space");
-        // make sure first two characters are not 0x
-        if (_temp[0] == 0x30)
-        {
-            require(_temp[1] != 0x78, "string cannot start with 0x");
-            require(_temp[1] != 0x58, "string cannot start with 0X");
-        }
-        
-        // create a bool to track if we have a non number character
-        bool _hasNonNumber;
-        
-        // convert & check
-        for (uint256 i = 0; i < _length; i++)
-        {
-            // if its uppercase A-Z
-            if (_temp[i] > 0x40 && _temp[i] < 0x5b)
-            {
-                // convert to lower case a-z
-                _temp[i] = byte(uint(_temp[i]) + 32);
-                
-                // we have a non number
-                if (_hasNonNumber == false)
-                    _hasNonNumber = true;
-            } else {
-                require
-                (
-                    // require character is a space
-                    _temp[i] == 0x20 || 
-                    // OR lowercase a-z
-                    (_temp[i] > 0x60 && _temp[i] < 0x7b) ||
-                    // or 0-9
-                    (_temp[i] > 0x2f && _temp[i] < 0x3a),
-                    "string contains invalid characters"
-                );
-                // make sure theres not 2x spaces in a row
-                if (_temp[i] == 0x20)
-                    require( _temp[i+1] != 0x20, "string cannot contain consecutive spaces");
-                
-                // see if we have a character other than a number
-                if (_hasNonNumber == false && (_temp[i] < 0x30 || _temp[i] > 0x39))
-                    _hasNonNumber = true;    
-            }
-        }
-        
-        require(_hasNonNumber == true, "string cannot be only numbers");
-        
-        bytes32 _ret;
-        assembly {
-            _ret := mload(add(_temp, 32))
-        }
-        return (_ret);
-    }
-}
-
 /**
  * @title SafeMath v0.1.9
  * @dev Math operations with safety checks that throw on error
@@ -1925,4 +1562,25 @@ library SafeMath {
             return (z);
         }
     }
+}
+
+interface PlayerAffiliateInterface {
+    function getOrCreatePlayerId(address _plyAddr) external returns(uint256);
+    function getPlayerId(address _gameAddr, address _plyAddr) external view returns(uint256);
+    function getPlayerAddrById(address _gameAddr, uint256 _pid) external view returns(address);
+    function registerAffiliate(address _plyAddr, address _affAddr) external;
+    function hasAffiliate(address _plyAddr) external view returns(bool);
+    function getPlayerAmount(address _gameAddr) external view returns(uint256);
+    function playerAffiliate_(address _plyAddr) external view returns(address);
+    function getOrRegisterAffiliate(address _plyAddr, address _affAddr) external returns(address);
+    function depositShare(address _plyAddr) external payable returns(bool);
+}
+
+interface DividendInterface {
+    function deposit(uint256 _round) external payable returns(bool);
+    function distribute(uint256 _round) external returns(bool);
+}
+
+interface BBTxInterface {
+    function mine(address _to, uint256 _amount) external returns(bool);
 }

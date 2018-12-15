@@ -12,8 +12,10 @@ contract BBT is BurnableToken, PausableToken, SnapshotToken, Whitelist {
     uint256 private overrideTotalSupply_ = 10 * 1e9 * 1e18; //10 billion
 
     uint256 public circulation;
+    uint256 public minedAmount;
     address public teamWallet;
-    uint256 public constant teamReservedRatio = 10;
+    uint256 public constant gameDistributionRatio = 35; //35%
+    uint256 public constant teamReservedRatio = 15;     //15%
 
     mapping (uint256 => uint256) private snapshotCirculations_;   //snapshotId => circulation
 
@@ -92,12 +94,19 @@ contract BBT is BurnableToken, PausableToken, SnapshotToken, Whitelist {
      */
     function mine(address _to, uint256 _amount)
         onlyIfWhitelisted(msg.sender)
-        hasEnoughUnreleasedBBT(_amount)
         whenNotPaused
         public
         returns (bool)
     {
+        //use return instead of require. avoid blocking game
+        if (circulation.add(_amount) > totalSupply_)
+            return true;
+
+        if (minedAmount.add(_amount) > (totalSupply_.mul(gameDistributionRatio)).div(100))
+            return true;
+
         releaseBBT(_to, _amount);
+        minedAmount = minedAmount.add(_amount);
 
         //unlock dev team bbt
         unlockTeamBBT(getTeamUnlockAmountHelper(_amount), 'mine');
