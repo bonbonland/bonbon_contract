@@ -86,6 +86,7 @@ contract Sicbo is Pausable {
     uint256 public BBTxDistributeRatio = 32;    //32 / 1000
     uint256 public affiliateDistributeRatio = 8;    //8 / 1000
     uint256 public mineBBTxRatio = 100;    // 1 eth => 10bbt   //todo 待调整
+    address public constant devTeamWallet = 0x3235B0de284428Ceaf80244aaC77825507416370;   //development team wallet address
 
     modifier fitMinimalWager(uint256 _wager) {
         require(_wager >= minimalWager, 'minimal wager not fit.');
@@ -135,6 +136,10 @@ contract Sicbo is Pausable {
     {
         require(msg.sender != _affiliate);
 
+        if (_affiliate == address(0)) {
+            _affiliate = devTeamWallet;
+        }
+
         uint256 pid_ = getPlayerId(msg.sender);
         require(getPlayerTotalBalance(pid_) >= _wager, 'not enough balance.');
 
@@ -175,6 +180,10 @@ contract Sicbo is Pausable {
         payable
     {
         require(msg.sender != _affiliate);
+
+        if (_affiliate == address(0)) {
+            _affiliate = devTeamWallet;
+        }
 
         uint256 pid_ = PlayerAffiliate.getOrCreatePlayerId(msg.sender);
         uint256 wager_ = msg.value;

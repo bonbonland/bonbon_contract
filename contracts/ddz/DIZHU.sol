@@ -955,10 +955,15 @@ contract DIZHU is modularBBT, Ownable {
         {
             // grab their player ID, name and last aff ID, from player names contract 
 //            _pID = PlayerBook.getPlayerID(msg.sender);
-            _pID = PlayerAffiliate.getOrCreatePlayerId(msg.sender)
+            _pID = PlayerAffiliate.getOrCreatePlayerId(msg.sender);
 //            bytes32 _name = PlayerBook.getPlayerName(_pID);
-            uint256 _laff = PlayerBook.getPlayerLAff(_pID);
-            
+//            uint256 _laff = PlayerBook.getPlayerLAff(_pID);
+            uint256 _laff = 0;
+            address _laffAddr = PlayerAffiliate.playerAffiliate_(msg.sender);
+            if (_laffAddr != address(0)) {
+                _laff = PlayerAffiliate.getOrCreatePlayerId(_laffAddr);
+            }
+
             // set up player account 
             pIDxAddr_[msg.sender] = _pID;
             plyr_[_pID].addr = msg.sender;
