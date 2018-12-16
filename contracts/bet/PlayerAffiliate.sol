@@ -41,6 +41,8 @@ contract PlayerAffiliate is Ownable {
         private
         returns(bool)
     {
+        require(_addr != address(0));
+
         if (playerIds_[_gameId][_addr] == 0) {
             uint256 newPlayerId = playerCount_[_gameId] + 1;
             playerCount_[_gameId]++;
@@ -139,6 +141,7 @@ contract PlayerAffiliate is Ownable {
         private
     {
         require(_plyAddr != _affAddr);
+        require(_affAddr != address(0));
         require(playerAffiliate_[_plyAddr] == address(0), 'already registered affiliate.');
 
         uint256 gameId = gameIds_[msg.sender];

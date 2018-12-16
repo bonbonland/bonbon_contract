@@ -304,8 +304,8 @@ contract DIZHU is modularBBT, Ownable {
         BBTdatasets.EventReturns memory _eventData_ = determinePID(_eventData_);
             
         // fetch player id
-//        uint256 _pID = pIDxAddr_[msg.sender];
-        uint256 _pID = PlayerAffiliate.getOrCreatePlayerId(msg.sender);
+        uint256 _pID = pIDxAddr_[msg.sender];
+//        uint256 _pID = PlayerAffiliate.getOrCreatePlayerId(msg.sender);
         
         // buy core 
         buyCore(_pID, plyr_[_pID].laff, 0, _eventData_);
@@ -954,7 +954,8 @@ contract DIZHU is modularBBT, Ownable {
         if (_pID == 0)
         {
             // grab their player ID, name and last aff ID, from player names contract 
-            _pID = PlayerBook.getPlayerID(msg.sender);
+//            _pID = PlayerBook.getPlayerID(msg.sender);
+            _pID = PlayerAffiliate.getOrCreatePlayerId(msg.sender)
 //            bytes32 _name = PlayerBook.getPlayerName(_pID);
             uint256 _laff = PlayerBook.getPlayerLAff(_pID);
             
