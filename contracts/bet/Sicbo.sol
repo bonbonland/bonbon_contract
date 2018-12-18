@@ -150,7 +150,7 @@ contract Sicbo is Pausable {
             initNewRound();
         }
 
-        if (currentRound.startTime + roundDuration < now) {
+        if (currentRound.startTime + roundDuration < now && currentRound.ended == false) {
             endCurrentRound(pid_, _wager);
         } else {
             //bbt dividend
@@ -193,7 +193,7 @@ contract Sicbo is Pausable {
             initNewRound();
         }
 
-        if (currentRound.startTime + roundDuration < now) {
+        if (currentRound.startTime + roundDuration < now && currentRound.ended == false) {
             endCurrentRound(pid_, wager_);
         } else {
             //bbt dividend
@@ -227,7 +227,8 @@ contract Sicbo is Pausable {
     function endCurrentRound(uint256 _pid, uint256 _wager) private {
         //最后一个玩家的投注需要返还给他
         PlayerInfo storage playerInfo_ = playersInfo[_pid];
-        playerInfo_.returnWager += _wager;
+        if (_wager > 0)
+            playerInfo_.returnWager += _wager;
 
         //获得大小结果，分配收益
         uint8 result_ = roll();
@@ -461,6 +462,11 @@ contract Sicbo is Pausable {
 
         (msg.sender).transfer(playerBalance_);
         playersInfo[pid_].withdrew += playerBalance_;
+
+        //check if need to end round
+        if (currentRound.startTime + roundDuration < now && currentRound.ended = false) {
+            endCurrentRound(pid_, 0);
+        }
 
         emit Withdraw(msg.sender, playerBalance_);
     }

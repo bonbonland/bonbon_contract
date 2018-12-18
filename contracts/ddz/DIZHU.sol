@@ -198,8 +198,8 @@ contract DIZHU is modularBBT, Ownable {
 //=================_|===========================================================
     string constant public name = "Fight the Landlord";
     string constant public symbol = "DDZ";
-    uint256 constant private rndGap_ = 0 minutes;         // length of ICO phase, set to 1 year for EOS.
-    uint256 constant private rndInit_ = 30 minutes;                // round timer starts at this
+    uint256 constant private rndGap_ = 0 minutes;              // length of ICO phase, set to 1 year for EOS.
+    uint256 constant private rndInit_ = 1 minutes;            // todo round timer starts at this
     uint256 constant private rndInc_ = 1 minutes;              // every full key purchased adds this much to the timer
     uint256 constant private rndMax_ = 2 hours;                // max length a round timer can be
 //==============================================================================
@@ -1181,7 +1181,7 @@ contract DIZHU is modularBBT, Ownable {
         // toss 5% into airdrop pot
         uint256 _air = (_eth.mul(5)).div(100);
         airDropPot_ = airDropPot_.add(_air);
-        
+
         // update eth balance (eth = eth - (bbt share x% + aff share 5% + airdrop pot share 5%))
         _eth = _eth.sub(((_eth.mul(fees_[_team].bbt)) / 100).add((_eth.mul(5+5) / 100)));
         
