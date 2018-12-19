@@ -464,7 +464,7 @@ contract Sicbo is Pausable {
         playersInfo[pid_].withdrew += playerBalance_;
 
         //check if need to end round
-        if (currentRound.startTime + roundDuration < now && currentRound.ended = false) {
+        if (currentRound.startTime + roundDuration < now && currentRound.ended == false) {
             endCurrentRound(pid_, 0);
         }
 
