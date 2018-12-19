@@ -36,11 +36,6 @@ contract Dividend is Pausable {
     event Distributed(uint256 indexed _gameId, uint256 indexed _roundId, uint256 bbtSnapshotId, uint256 dividend);
     event Withdrew(uint256 indexed _gameId, address indexed _from, uint256 _value);
 
-    constructor(address _bbtAddress) public {
-        BBT = BBTxInterface(_bbtAddress);
-        games.push(address(0)); //map gameId 0 to address 0x0
-    }
-
     modifier isHuman() {
         address _addr = msg.sender;
         uint256 _codeLength;
@@ -57,8 +52,13 @@ contract Dividend is Pausable {
     }
 
     modifier validGameId(uint256 _gameId) {
-        require(_gameId < games.length, 'invalid gameId.');
+        require(_gameId <= getGameCount(), 'invalid gameId.');
         _;
+    }
+
+    constructor(address _bbtAddress) public {
+        BBT = BBTxInterface(_bbtAddress);
+        games.push(address(0)); //map gameId 0 to address 0x0
     }
 
     /**
@@ -74,7 +74,7 @@ contract Dividend is Pausable {
     * @dev get total registered game count.
     */
     function getGameCount() public view returns(uint256) {
-        return games.length;
+        return games.length - 1;    //exclude gameId 0
     }
 
     /**
@@ -221,6 +221,20 @@ contract Dividend is Pausable {
     }
 
     /**
+     * @dev player withdraw dividend out.
+     */
+    function withdrawAll()
+        whenNotPaused
+        isHuman
+        public
+    {
+        uint256 gameCount_ = getGameCount();
+        for (uint256 i = 1; i <= gameCount_; i++) {
+            withdraw(i);
+        }
+    }
+
+    /**
      * @dev get player dividend by round id.
      */
     function getPlayerRoundDividend(uint256 _gameId, address _plyAddr, uint256 _roundId)
@@ -230,7 +244,7 @@ contract Dividend is Pausable {
         returns(uint256)
     {
         RoundInfo storage roundInfo = roundsInfo_[_gameId][_roundId];
-        // cause circulation divide token decimal, so the balance should divide too.
+        // cause circulation divided by token decimal, so the balance should divide by it too.
         uint256 plyRoundBBT = (BBT.balanceOfAt(_plyAddr, roundInfo.bbtSnapshotId)).div(1e18);
         return plyRoundBBT.mul(getRoundDividendPerBBTHelper(_gameId, _roundId));
     }
@@ -271,7 +285,7 @@ contract Dividend is Pausable {
         if (roundInfo.dividend == 0)
             return 0;
 
-        // must divide token decimal, or circulation is greater than dividend,
+        // must divide by token decimal, or circulation is greater than dividend,
         // the result will be 0, not 0.xxx(cause solidity not support float.)
         // and the func which rely on this helper will get the result 0 too.
         uint256 circulationAtSnapshot = (BBT.circulationAt(roundInfo.bbtSnapshotId)).div(1e18);
