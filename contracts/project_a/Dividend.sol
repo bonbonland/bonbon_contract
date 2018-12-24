@@ -235,7 +235,7 @@ contract Dividend is Pausable {
     }
 
     /**
-     * @dev get player dividend by round id.
+     * @dev get player dividend by round id and game id.
      */
     function getPlayerRoundDividend(uint256 _gameId, address _plyAddr, uint256 _roundId)
         validGameId(_gameId)
@@ -249,6 +249,21 @@ contract Dividend is Pausable {
         return plyRoundBBT.mul(getRoundDividendPerBBTHelper(_gameId, _roundId));
     }
 
+    /**
+     * @dev get player dividend by round id and game address.
+     */
+    function getPlayerRoundDividendByAddr(address _gameAddr, address _plyAddr, uint256 _roundId)
+        public
+        view
+        returns(uint256)
+    {
+        uint256 gameId = getGameId(_gameAddr);
+        return getPlayerRoundDividend(gameId, _plyAddr, _roundId);
+    }
+
+    /**
+     * @dev get player total dividend by game id.
+     */
     function getPlayerTotalDividend(uint256 _gameId, address _plyAddr)
         validGameId(_gameId)
         public
@@ -263,6 +278,21 @@ contract Dividend is Pausable {
         return plyTotalDividend;
     }
 
+    /**
+     * @dev get player total dividend by game addr.
+     */
+    function getPlayerTotalDividendByAddr(address _gameAddr, address _plyAddr)
+        public
+        view
+        returns(uint256)
+    {
+        uint256 gameId = getGameId(_gameAddr);
+        return getPlayerTotalDividend(gameId, _plyAddr);
+    }
+
+    /**
+     * @dev get player left dividend(total - withdrew) by game id
+     */
     function getPlayerLeftDividend(uint256 _gameId, address _plyAddr)
         validGameId(_gameId)
         public
@@ -270,6 +300,18 @@ contract Dividend is Pausable {
         returns(uint256)
     {
         return (getPlayerTotalDividend(_gameId, _plyAddr)).sub(playersWithdrew_[_gameId][_plyAddr]);
+    }
+
+    /**
+     * @dev get player left dividend(total - withdrew) by game address
+     */
+    function getPlayerLeftDividendByAddr(address _gameAddr, address _plyAddr)
+        public
+        view
+        returns(uint256)
+    {
+        uint256 gameId = getGameId(_gameAddr);
+        return getPlayerLeftDividend(gameId, _plyAddr);
     }
 
     /**
