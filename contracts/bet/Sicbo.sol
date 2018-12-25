@@ -83,7 +83,7 @@ contract Sicbo is Pausable {
 
     uint256 public minimalWager = 0.005 ether;   //todo 待调整
     uint256 public roundDuration = 1 minutes;   //todo 待调整
-    uint256 public BBTxDistributeRatio = 32;    //32 / 1000
+    uint256 public BBTxDistributeRatio = 42;    //42 / 1000
     uint256 public affiliateDistributeRatio = 8;    //8 / 1000
     uint256 public mineBBTxRatio = 100;    // 1 eth => 10bbt   //todo 待调整
     address public constant devTeamWallet = 0x3235B0de284428Ceaf80244aaC77825507416370;   //development team wallet address
