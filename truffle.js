@@ -56,7 +56,7 @@ module.exports = {
     },
     ropsten: {
       provider: () =>
-        new HDWalletProvider(privateKeys, "https://ropsten.infura.io/v3/72d2a408fc2042309257abd85d67eac0"),
+        new HDWalletProvider(privateKeys, "https://ropsten.infura.io/"),
       network_id: '3',
       gas: 7000000,
       gasPrice: web3.utils.toWei('5', 'gwei'),

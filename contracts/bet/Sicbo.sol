@@ -81,11 +81,11 @@ contract Sicbo is Pausable {
     event EndRound(uint256 indexed roundId, uint8 result, address player, uint256 time, uint256 blockId);
     event Withdraw(address indexed player, uint256 amount);
 
-    uint256 public minimalWager = 0.005 ether;   //todo 待调整
-    uint256 public roundDuration = 1 minutes;   //todo 待调整
+    uint256 public minimalWager = 0.005 ether;
+    uint256 public roundDuration = 5 minutes;
     uint256 public BBTxDistributeRatio = 42;    //42 / 1000
     uint256 public affiliateDistributeRatio = 8;    //8 / 1000
-    uint256 public mineBBTxRatio = 100;    // 1 eth => 10bbt   //todo 待调整
+    uint256 public mineBBTxRatio = 100;    // 1 eth => 100bbt
     address public constant devTeamWallet = 0x3235B0de284428Ceaf80244aaC77825507416370;   //development team wallet address
 
     modifier fitMinimalWager(uint256 _wager) {
