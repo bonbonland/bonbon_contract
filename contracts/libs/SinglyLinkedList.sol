@@ -1,6 +1,12 @@
 pragma solidity ^0.5.0;
 pragma experimental ABIEncoderV2;
 
+library Dataset {
+    struct NodeData {           //链表节点数据结构
+        string someData;
+    }
+}
+
 library SinglyLinkedList {
     struct HeadNode {
         uint256 listLength;
@@ -8,12 +14,8 @@ library SinglyLinkedList {
         uint256 next;           //指向第一个节点的数组下标
     }
 
-    struct NodeData {           //todo 节点数据结构
-        string someData;
-    }
-
     struct Node {
-        NodeData data;
+        Dataset.NodeData data;
         uint256 next;
     }
 
@@ -42,7 +44,7 @@ library SinglyLinkedList {
     {
         require(0 == self.nodes.length, 'no need to initialize');
         //填充数组下标为0的元素，防止获取备用链数组下标时错判
-        self.nodes.push(Node(NodeData(""), 0));
+        self.nodes.push(Node(Dataset.NodeData(""), 0));
         return true;
     }
 
@@ -81,7 +83,7 @@ library SinglyLinkedList {
         validIndex(self, index)
         internal
         view
-        returns(NodeData storage)
+        returns(Dataset.NodeData storage)
     {
         Node storage node = getNode(self, index);
         return node.data;
@@ -98,7 +100,7 @@ library SinglyLinkedList {
         return spacePointer;
     }
 
-    function insert(List storage self, uint256 index, NodeData memory data)
+    function insert(List storage self, uint256 index, Dataset.NodeData memory data)
         internal
         returns(bool)
     {
@@ -165,12 +167,12 @@ contract TestLinkedList {
     SinglyLinkedList.List singlyLinkedList;
 
     constructor() public {
-        SinglyLinkedList.NodeData memory firtNodeData = SinglyLinkedList.NodeData("a");
+        Dataset.NodeData memory firtNodeData = Dataset.NodeData("a");
         singlyLinkedList.insert(1, firtNodeData);
     }
 
     function insert(string memory data, uint256 index) public returns(bool) {
-        SinglyLinkedList.NodeData memory firtNodeData = SinglyLinkedList.NodeData(data);
+        Dataset.NodeData memory firtNodeData = Dataset.NodeData(data);
         return singlyLinkedList.insert(index, firtNodeData);
     }
 
@@ -189,11 +191,11 @@ contract TestLinkedList {
     }
 
     //获取链表节点数据组成的数组
-    function getLinkedListData() public view returns(SinglyLinkedList.NodeData[] memory) {
+    function getLinkedListData() public view returns(Dataset.NodeData[] memory) {
         uint256 listLength = getListLength();
-        SinglyLinkedList.NodeData[] memory listData = new SinglyLinkedList.NodeData[](listLength + 1);
+        Dataset.NodeData[] memory listData = new Dataset.NodeData[](listLength + 1);
         for(uint256 i=1;i <= listLength;i++) {
-            SinglyLinkedList.NodeData memory nodeData = singlyLinkedList.getNodeData(i);
+            Dataset.NodeData memory nodeData = singlyLinkedList.getNodeData(i);
             listData[i] = nodeData;
         }
         return listData;
