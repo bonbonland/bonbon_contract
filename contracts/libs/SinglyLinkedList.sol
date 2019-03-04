@@ -5,6 +5,14 @@ library Dataset {
     struct NodeData {           //链表节点数据结构
         string someData;
     }
+
+    function getInitNodeData()
+        internal
+        pure
+        returns(NodeData memory)
+    {
+        return NodeData("");
+    }
 }
 
 library SinglyLinkedList {
@@ -44,7 +52,7 @@ library SinglyLinkedList {
     {
         require(0 == self.nodes.length, 'no need to initialize');
         //填充数组下标为0的元素，防止获取备用链数组下标时错判
-        self.nodes.push(Node(Dataset.NodeData(""), 0));
+        self.nodes.push(Node(Dataset.getInitNodeData(), 0));
         return true;
     }
 
