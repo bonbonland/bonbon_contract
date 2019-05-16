@@ -294,6 +294,7 @@ contract Faucet is Whitelist, Pausable {
     }
 
     address[] private faucetToken_;
+    uint256 public faucetTokenAmount;
     FaucetConf public ethFaucetConf = FaucetConf(24 hours, 1 ether);
     mapping(address => FaucetConf) public erc20FaucetConf;  //tokenContract => conf
     mapping(address => FaucetRecord) public userLatestEthFaucetRecord;  //wallet address => FaucetRecord
@@ -325,12 +326,43 @@ contract Faucet is Whitelist, Pausable {
         addAddressToWhitelist(msg.sender);
     }
 
+    function stringToBytes32(string memory source) private pure returns (bytes32 result) {
+        bytes memory tempEmptyStringTest = bytes(source);
+        if (tempEmptyStringTest.length == 0) {
+            return 0x0;
+        }
+
+        assembly {
+            result := mload(add(source, 32))
+        }
+    }
+
     function getFaucetTokenList()
         public
         view
-        returns(address[] memory)
+        //token contract address, token symbol, token name, token decimal, interval, amount
+        returns(address[] memory, bytes32[]memory, bytes32[] memory, uint8[] memory, uint256[] memory, uint256[] memory)
     {
-        return faucetToken_;
+        address[] memory tokenAddresses_ = new address[](faucetTokenAmount);
+        bytes32[] memory tokenSymbols_ = new bytes32[](faucetTokenAmount);
+        bytes32[] memory tokenNames_ = new bytes32[](faucetTokenAmount);
+        uint8[] memory tokenDecimals_ = new uint8[](faucetTokenAmount);
+        uint256[] memory tokenFaucetIntervals_ = new uint256[](faucetTokenAmount);
+        uint256[] memory tokenFaucetAmounts_ = new uint256[](faucetTokenAmount);
+        uint256 index_ = 0;
+        for (uint256 i = 0; i < faucetToken_.length; i++) {
+            if (faucetToken_[i] != address(0)) {
+                Erc20Interface tokenContractInterface_ = Erc20Interface(faucetToken_[i]);
+                tokenAddresses_[index_] = faucetToken_[i];
+                tokenSymbols_[index_] = stringToBytes32(tokenContractInterface_.symbol());
+                tokenNames_[index_] = stringToBytes32(tokenContractInterface_.name());
+                tokenDecimals_[index_] = tokenContractInterface_.decimals();
+                tokenFaucetIntervals_[index_] = erc20FaucetConf[faucetToken_[i]].interval;
+                tokenFaucetAmounts_[index_] = erc20FaucetConf[faucetToken_[i]].amount;
+                index_++;
+            }
+        }
+        return (tokenAddresses_, tokenSymbols_, tokenNames_, tokenDecimals_, tokenFaucetIntervals_, tokenFaucetAmounts_);
     }
 
     function getFaucetTokenIndex(address _tokenContract)
@@ -358,11 +390,13 @@ contract Faucet is Whitelist, Pausable {
             if (faucetToken_[i] == address(0)) {
                 faucetToken_[i] = _tokenContract;
                 erc20FaucetConf[_tokenContract] = FaucetConf(_interval, _amount);
+                faucetTokenAmount++;
                 return;
             }
         }
         faucetToken_.push(_tokenContract);
         erc20FaucetConf[_tokenContract] = FaucetConf(_interval, _amount);
+        faucetTokenAmount++;
     }
 
     /**
@@ -375,6 +409,7 @@ contract Faucet is Whitelist, Pausable {
         uint256 tokenIndex = getFaucetTokenIndex(_tokenContract);
         faucetToken_[tokenIndex] = address(0);
         erc20FaucetConf[_tokenContract] = FaucetConf(0, 0);
+        faucetTokenAmount--;
     }
 
     function editFaucetTokenConf(address _tokenContract, uint256 _interval, uint256 _amount)
@@ -440,4 +475,7 @@ contract Faucet is Whitelist, Pausable {
 
 interface Erc20Interface {
     function transfer(address _to, uint256 _value) external returns(bool);
+    function symbol() external view returns(string memory);
+    function name() external view returns(string memory);
+    function decimals() external view returns(uint8);
 }
