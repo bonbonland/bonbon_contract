@@ -341,7 +341,7 @@ contract Faucet is Whitelist, Pausable {
         public
         view
         //token contract address, token symbol, token name, token decimal, interval, amount
-        returns(address[] memory, bytes32[]memory, bytes32[] memory, uint8[] memory, uint256[] memory, uint256[] memory)
+        returns(address[] memory, bytes32[]memory, bytes32[] memory, uint8[] memory, uint256[] memory, uint256[] memory, uint256[] memory)
     {
         address[] memory tokenAddresses_ = new address[](faucetTokenAmount);
         bytes32[] memory tokenSymbols_ = new bytes32[](faucetTokenAmount);
@@ -349,6 +349,7 @@ contract Faucet is Whitelist, Pausable {
         uint8[] memory tokenDecimals_ = new uint8[](faucetTokenAmount);
         uint256[] memory tokenFaucetIntervals_ = new uint256[](faucetTokenAmount);
         uint256[] memory tokenFaucetAmounts_ = new uint256[](faucetTokenAmount);
+        uint256[] memory tokenFaucetBalances_ = new uint256[](faucetTokenAmount);
         uint256 index_ = 0;
         for (uint256 i = 0; i < faucetToken_.length; i++) {
             if (faucetToken_[i] != address(0)) {
@@ -359,10 +360,11 @@ contract Faucet is Whitelist, Pausable {
                 tokenDecimals_[index_] = tokenContractInterface_.decimals();
                 tokenFaucetIntervals_[index_] = erc20FaucetConf[faucetToken_[i]].interval;
                 tokenFaucetAmounts_[index_] = erc20FaucetConf[faucetToken_[i]].amount;
+                tokenFaucetBalances_[index_] = tokenContractInterface_.balanceOf(address(this));
                 index_++;
             }
         }
-        return (tokenAddresses_, tokenSymbols_, tokenNames_, tokenDecimals_, tokenFaucetIntervals_, tokenFaucetAmounts_);
+        return (tokenAddresses_, tokenSymbols_, tokenNames_, tokenDecimals_, tokenFaucetIntervals_, tokenFaucetAmounts_, tokenFaucetBalances_);
     }
 
     function getFaucetTokenIndex(address _tokenContract)
@@ -478,4 +480,5 @@ interface Erc20Interface {
     function symbol() external view returns(string memory);
     function name() external view returns(string memory);
     function decimals() external view returns(uint8);
+    function balanceOf(address _owner) external view returns (uint256);
 }
